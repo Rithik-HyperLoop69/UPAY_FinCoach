@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Lock, Mail, User as UserIcon, Briefcase, ArrowRight } from 'lucide-react';
+import { Lock, Mail, User as UserIcon, Briefcase, ArrowRight, ArrowLeft } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
 import { usePageTransition } from '../context/PageTransitionContext';
@@ -17,6 +17,26 @@ export const RegisterPage: React.FC = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
   const { navigateWithShutter } = usePageTransition();
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        navigateWithShutter('/');
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    window.history.pushState({ page: 'register-guard' }, '', window.location.href);
+    const handlePopState = () => {
+      navigateWithShutter('/');
+    };
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [navigateWithShutter]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,7 +60,20 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center p-4">
+    <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center p-4 relative">
+      {/* Floating Top-Left Back Button to Landing Page */}
+      <div className="fixed top-5 left-5 z-20">
+        <button
+          type="button"
+          onClick={() => navigateWithShutter('/')}
+          className="group inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 hover:border-white/20 text-slate-300 hover:text-white text-xs font-semibold backdrop-blur-md transition-all duration-200 shadow-lg hover:shadow-cyan-500/10 active:scale-95 cursor-pointer"
+          aria-label="Back to Landing Page"
+        >
+          <ArrowLeft className="w-4 h-4 text-teal-400 group-hover:-translate-x-1 transition-transform duration-200" />
+          <span>Back to Landing Page</span>
+        </button>
+      </div>
+
       <div className="absolute w-96 h-96 bg-teal-500/10 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-md">
@@ -152,16 +185,27 @@ export const RegisterPage: React.FC = () => {
           </form>
         </div>
 
-        <p className="text-center text-xs text-slate-400 mt-6">
-          Already have an account?{' '}
+        <div className="mt-6 flex flex-col items-center gap-2.5">
+          <p className="text-center text-xs text-slate-400">
+            Already have an account?{' '}
+            <button
+              type="button"
+              onClick={() => navigateWithShutter('/login')}
+              className="text-blue-400 hover:underline font-semibold bg-transparent border-none p-0 inline cursor-pointer"
+            >
+              Sign In
+            </button>
+          </p>
+
           <button
             type="button"
-            onClick={() => navigateWithShutter('/login')}
-            className="text-blue-400 hover:underline font-semibold bg-transparent border-none p-0 inline cursor-pointer"
+            onClick={() => navigateWithShutter('/')}
+            className="group inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors cursor-pointer py-1"
           >
-            Sign In
+            <ArrowLeft className="w-3.5 h-3.5 text-slate-400 group-hover:text-teal-400 group-hover:-translate-x-0.5 transition-all" />
+            <span>Return to Landing Page</span>
           </button>
-        </p>
+        </div>
       </div>
     </div>
   );

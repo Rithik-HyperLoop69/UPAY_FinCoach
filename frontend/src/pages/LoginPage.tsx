@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Lock, Mail, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Lock, Mail, ArrowRight, ArrowLeft, ShieldCheck } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import StrokeText from '../components/ui/StrokeText';
 import BorderGlow from '../components/ui/BorderGlow';
@@ -18,6 +18,30 @@ export const LoginPage: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const { navigateWithShutter } = usePageTransition();
+
+  useEffect(() => {
+    // 1. Keyboard shortcut: Escape returns to landing page with shutter
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        navigateWithShutter('/');
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    // 2. Intercept browser back button (popstate) to trigger shutter transition
+    window.history.pushState({ page: 'login-guard' }, '', window.location.href);
+
+    const handlePopState = () => {
+      navigateWithShutter('/');
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [navigateWithShutter]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,6 +65,19 @@ export const LoginPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#03010a] relative overflow-hidden flex flex-col justify-center items-center p-4">
+      {/* Floating Top-Left Back Button to Landing Page */}
+      <div className="fixed top-5 left-5 z-20">
+        <button
+          type="button"
+          onClick={() => navigateWithShutter('/')}
+          className="group inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 hover:border-white/20 text-slate-300 hover:text-white text-xs font-semibold backdrop-blur-md transition-all duration-200 shadow-lg hover:shadow-cyan-500/10 active:scale-95 cursor-pointer"
+          aria-label="Back to Landing Page"
+        >
+          <ArrowLeft className="w-4 h-4 text-cyan-400 group-hover:-translate-x-1 transition-transform duration-200" />
+          <span>Back to Landing Page</span>
+        </button>
+      </div>
+
       {/* Animated Ferrofluid WebGL Background */}
       <div className="absolute inset-0 z-0">
         <Ferrofluid
@@ -194,16 +231,27 @@ export const LoginPage: React.FC = () => {
           </BorderGlow>
         </TiltedCard>
 
-        <p className="text-center text-xs text-slate-400 mt-6">
-          Don't have an account yet?{' '}
+        <div className="mt-6 flex flex-col items-center gap-2.5">
+          <p className="text-center text-xs text-slate-400">
+            Don't have an account yet?{' '}
+            <button
+              type="button"
+              onClick={() => navigateWithShutter('/register')}
+              className="text-blue-400 hover:underline font-semibold bg-transparent border-none p-0 inline cursor-pointer"
+            >
+              Create Free Account
+            </button>
+          </p>
+
           <button
             type="button"
-            onClick={() => navigateWithShutter('/register')}
-            className="text-blue-400 hover:underline font-semibold bg-transparent border-none p-0 inline cursor-pointer"
+            onClick={() => navigateWithShutter('/')}
+            className="group inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors cursor-pointer py-1"
           >
-            Create Free Account
+            <ArrowLeft className="w-3.5 h-3.5 text-slate-400 group-hover:text-cyan-400 group-hover:-translate-x-0.5 transition-all" />
+            <span>Return to Landing Page</span>
           </button>
-        </p>
+        </div>
       </div>
     </div>
   );

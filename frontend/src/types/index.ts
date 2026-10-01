@@ -1,0 +1,168 @@
+export interface User {
+  id: string;
+  email: string;
+  fullName: string;
+  phone?: string;
+  role: string;
+  avatarUrl?: string;
+  upayWalletNumber?: string;
+  upayConnected: boolean;
+  profile?: FinancialProfile;
+}
+
+export interface FinancialProfile {
+  id: string;
+  monthlyIncome: number;
+  primaryIncomeSource: string;
+  riskTolerance: string;
+  savingsTargetPercent: number;
+  occupation: string;
+  primaryCurrency: string;
+  financialHealthScore: number;
+  financialPersona: string;
+  emergencyFundMonths: number;
+}
+
+export interface Transaction {
+  id: string;
+  userId: string;
+  type: 'INCOME' | 'EXPENSE' | 'TRANSFER';
+  amount: number;
+  category: string;
+  description: string;
+  date: string;
+  merchant?: string;
+  paymentMethod: string;
+  status: string;
+  isRecurring: boolean;
+  recurringFrequency?: string;
+  notes?: string;
+  metadata?: string;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  type: string;
+  icon: string;
+  color: string;
+  isSystem: boolean;
+}
+
+export interface Budget {
+  id: string;
+  month: string;
+  totalLimit: number;
+  totalSpent: number;
+  totalRemaining: number;
+  totalPercentage: number;
+  items: BudgetItem[];
+}
+
+export interface BudgetItem {
+  id: string;
+  category: string;
+  limitAmount: number;
+  actualAmount: number;
+  remainingAmount: number;
+  percentageUsed: number;
+  status: 'SAFE' | 'MODERATE' | 'WARNING' | 'CRITICAL' | 'EXCEEDED';
+}
+
+export interface SavingsGoal {
+  id: string;
+  name: string;
+  targetAmount: number;
+  currentAmount: number;
+  targetDate?: string;
+  category: string;
+  isCompleted: boolean;
+  notes?: string;
+  remainingAmount: number;
+  progressPercent: number;
+  estimatedMonthsRemaining: number | null;
+  estimatedCompletionDate: string | null;
+}
+
+export interface FinancialSummary {
+  currentBalance: number;
+  totalIncome: number;
+  totalExpenses: number;
+  netSavings: number;
+  savingsRate: number;
+  monthlyIncome: number;
+  monthlyExpenses: number;
+  monthlyNetSavings: number;
+  monthlySavingsRate: number;
+  incomeGrowthRate: number;
+  expenseGrowthRate: number;
+  averageDailySpending: number;
+  currency: string;
+}
+
+export interface HealthScoreData {
+  score: number;
+  tier: 'Excellent' | 'Strong' | 'Moderate' | 'Needs Attention';
+  factors: {
+    savingsBehavior: { score: number; max: number; description: string };
+    budgetAdherence: { score: number; max: number; description: string };
+    cashFlowStability: { score: number; max: number; description: string };
+    goalProgress: { score: number; max: number; description: string };
+  };
+  disclaimer: string;
+}
+
+export interface ForecastPoint {
+  date: string;
+  dayLabel: string;
+  projectedIncome: number;
+  projectedExpense: number;
+  projectedNet: number;
+  projectedBalance: number;
+  scheduledEvents: string[];
+}
+
+export interface ForecastResult {
+  confidenceScore: number;
+  confidenceTier: string;
+  dataMonthsCount: number;
+  currentBalance: number;
+  expectedMonthlyIncome: number;
+  expectedMonthlyExpense: number;
+  expectedMonthlyNet: number;
+  sevenDays: { points: ForecastPoint[]; totalProjectedIncome: number; totalProjectedExpense: number; endingBalance: number };
+  thirtyDays: { points: ForecastPoint[]; totalProjectedIncome: number; totalProjectedExpense: number; endingBalance: number };
+  ninetyDays: { points: ForecastPoint[]; totalProjectedIncome: number; totalProjectedExpense: number; endingBalance: number };
+  recurringObligations: {
+    id: string;
+    name: string;
+    category: string;
+    merchant?: string;
+    expectedAmount: number;
+    frequency: string;
+    nextExpectedDate: string;
+    confidence: number;
+  }[];
+  identifiedRisks: {
+    id: string;
+    type: string;
+    severity: 'CRITICAL' | 'WARNING' | 'INFO';
+    title: string;
+    message: string;
+    projectedDate?: string;
+    amountImpact?: number;
+    actionRecommendation: string;
+  }[];
+  assumptions: string[];
+}
+
+export interface AlertItem {
+  id: string;
+  type: string;
+  title: string;
+  message: string;
+  severity: 'CRITICAL' | 'WARNING' | 'INFO';
+  isRead: boolean;
+  actionUrl?: string;
+  createdAt: string;
+}

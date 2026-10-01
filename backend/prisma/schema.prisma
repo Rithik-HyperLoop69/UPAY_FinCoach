@@ -1,0 +1,209 @@
+// Prisma Schema for AI Financial Health Coach + Cash-Flow Forecaster (upay fintech concept)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String            @id @default(cuid())
+  email            String            @unique
+  passwordHash     String
+  fullName         String
+  phone            String?
+  role             String            @default("USER") // USER, ADMIN
+  avatarUrl        String?
+  upayWalletNumber String?           // Simulated upay wallet linkage
+  upayConnected    Boolean           @default(false)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  profile          FinancialProfile?
+  transactions     Transaction[]
+  categories       Category[]
+  budgets          Budget[]
+  savingsGoals     SavingsGoal[]
+  forecastPoints   ForecastPoint[]
+  alerts           Alert[]
+  aiConversations  AIConversation[]
+  refreshTokens    RefreshToken[]
+
+  @@index([email])
+}
+
+model FinancialProfile {
+  id                   String   @id @default(cuid())
+  userId               String   @unique
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  monthlyIncome        Float    @default(45000.0) // In BDT ৳
+  primaryIncomeSource  String   @default("Salary")
+  riskTolerance        String   @default("MODERATE") // LOW, MODERATE, HIGH
+  savingsTargetPercent Float    @default(20.0) // e.g. 20%
+  occupation           String   @default("Professional")
+  primaryCurrency      String   @default("BDT")
+  financialHealthScore Float    @default(75.0) // 0 - 100
+  financialPersona     String   @default("Balanced Builder")
+  emergencyFundMonths  Float    @default(3.0)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  userId      String?  // null = system default category, non-null = custom user category
+  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  type        String   // INCOME, EXPENSE, TRANSFER
+  icon        String   @default("folder")
+  color       String   @default("#0284c7")
+  isSystem    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  @@unique([userId, name, type])
+  @@index([userId])
+}
+
+model Transaction {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type          String   // INCOME, EXPENSE, TRANSFER
+  amount        Float    // Amount in BDT
+  category      String
+  description   String
+  date          DateTime
+  merchant      String?
+  paymentMethod String   @default("upay") // upay, bKash, Bank, Card, Cash
+  status        String   @default("COMPLETED") // COMPLETED, PENDING, CANCELLED
+  isRecurring   Boolean  @default(false)
+  recurringFrequency String? // MONTHLY, WEEKLY, DAILY
+  notes         String?
+  metadata      String?  // JSON string for extra fintech attributes (e.g. upay transaction ID, USSD reference)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId, date])
+  @@index([userId, type])
+  @@index([userId, category])
+}
+
+model Budget {
+  id          String       @id @default(cuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  month       String       // Format: YYYY-MM
+  totalLimit  Float        // Total monthly budget in BDT
+  notes       String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  items       BudgetItem[]
+
+  @@unique([userId, month])
+  @@index([userId])
+}
+
+model BudgetItem {
+  id          String   @id @default(cuid())
+  budgetId    String
+  budget      Budget   @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  category    String
+  limitAmount Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([budgetId, category])
+  @@index([budgetId])
+}
+
+model SavingsGoal {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name          String
+  targetAmount  Float     // Target in BDT
+  currentAmount Float     @default(0.0)
+  targetDate    DateTime?
+  category      String    @default("Emergency")
+  isCompleted   Boolean   @default(false)
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model ForecastPoint {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  forecastDate     DateTime
+  horizon          String   // 7D, 30D, 90D
+  projectedIncome  Float
+  projectedExpense Float
+  projectedNet     Float
+  projectedBalance Float
+  confidenceScore  Float    @default(0.85) // 0.0 - 1.0
+  assumptions      String?  // JSON string of assumptions & recurring items considered
+  createdAt        DateTime @default(now())
+
+  @@index([userId, horizon])
+  @@index([userId, forecastDate])
+}
+
+model Alert {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   // BUDGET_WARNING, CASH_FLOW_SHORTAGE, UNUSUAL_SPENDING, GOAL_MILESTONE, RECURRING_BILL
+  title     String
+  message   String
+  severity  String   @default("INFO") // INFO, WARNING, CRITICAL
+  isRead    Boolean  @default(false)
+  actionUrl String?
+  metadata  String?  // Extra context
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+}
+
+model AIConversation {
+  id        String      @id @default(cuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String      @default("Financial Consultation")
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  messages  AIMessage[]
+
+  @@index([userId])
+}
+
+model AIMessage {
+  id                String         @id @default(cuid())
+  conversationId    String
+  conversation      AIConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role              String         // user, assistant, system
+  content           String
+  structuredContext String?        // JSON snapshot of financial indicators passed to AI
+  createdAt         DateTime       @default(now())
+
+  @@index([conversationId])
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
+}

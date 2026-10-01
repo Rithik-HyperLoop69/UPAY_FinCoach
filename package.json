@@ -1,0 +1,20 @@
+{
+  "name": "ai-financial-health-coach",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI Financial Health Coach + Cash-Flow Forecaster (upay fintech concept)",
+  "scripts": {
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "build": "npm run build:backend && npm run build:frontend",
+    "db:seed": "cd backend && npm run db:seed",
+    "test": "cd backend && npm test"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

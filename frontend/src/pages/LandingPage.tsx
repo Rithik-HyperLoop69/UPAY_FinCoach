@@ -1,193 +1,475 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import {
-  Sparkles,
-  TrendingUp,
-  LineChart,
-  ShieldCheck,
-  ArrowRight,
-  PieChart,
-  Zap,
-  CheckCircle2,
-  Lock,
-} from 'lucide-react';
-import { Button } from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
+import { X, ArrowRight, Sparkles, TrendingUp, ShieldCheck, LineChart, Cpu } from 'lucide-react';
+import './LandingPage.css';
+
+interface FeatureModalInfo {
+  title: string;
+  badge: string;
+  description: string;
+  points: string[];
+  route: string;
+  icon: React.ReactNode;
+}
 
 export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeModal, setActiveModal] = useState<FeatureModalInfo | null>(null);
 
-  const handleQuickDemo = async () => {
+  // 1. One-click instant login into demo account
+  const handleQuickDemo = async (targetRoute = '/dashboard') => {
     try {
+      setIsLoggingIn(true);
       await login('demo@upay.com', 'Password123!');
-      navigate('/dashboard');
-    } catch (e) {
+      navigate(targetRoute);
+    } catch {
       navigate('/login');
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
+  // 2. Desktop Single-Viewport Lock on >= 901px
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 901) {
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.height = '100%';
+        document.body.style.height = '100%';
+        setIsMenuOpen(false);
+        document.body.classList.remove('landing-menu-open');
+      } else {
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+        document.documentElement.style.height = '';
+        document.body.style.height = '';
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+      document.documentElement.style.height = '';
+      document.body.style.height = '';
+      document.body.classList.remove('landing-menu-open');
+    };
+  }, []);
+
+  // 3. Entrance Motion Listeners & Fallback Guarantee
+  useEffect(() => {
+    const appearElements = document.querySelectorAll('.landing-root .appear');
+    appearElements.forEach((el) => {
+      el.addEventListener(
+        'animationend',
+        () => {
+          el.classList.add('is-in');
+        },
+        { once: true }
+      );
+    });
+
+    const heroPhoto = document.querySelector('.landing-hero-photo');
+    if (heroPhoto) {
+      heroPhoto.addEventListener(
+        'animationend',
+        () => {
+          heroPhoto.classList.add('is-in');
+        },
+        { once: true }
+      );
+    }
+
+    // Fallback: If animations are blocked or inactive, add .is-in after two rAFs
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        let hasRunningAnimations = false;
+        if (typeof document.getAnimations === 'function') {
+          const activeAnims = document.getAnimations();
+          for (let i = 0; i < activeAnims.length; i++) {
+            const state = activeAnims[i].playState;
+            if (state === 'running' || state === 'finished') {
+              hasRunningAnimations = true;
+              break;
+            }
+          }
+        }
+
+        if (!hasRunningAnimations) {
+          appearElements.forEach((el) => el.classList.add('is-in'));
+          if (heroPhoto) heroPhoto.classList.add('is-in');
+        }
+      });
+    });
+  }, []);
+
+  // 4. Keyboard Listener: Escape key closes menu or modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (activeModal) {
+          setActiveModal(null);
+        } else if (isMenuOpen) {
+          setIsMenuOpen(false);
+          document.body.classList.remove('landing-menu-open');
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isMenuOpen, activeModal]);
+
+  const toggleMenu = () => {
+    const nextState = !isMenuOpen;
+    setIsMenuOpen(nextState);
+    if (nextState) {
+      document.body.classList.add('landing-menu-open');
+    } else {
+      document.body.classList.remove('landing-menu-open');
+    }
+  };
+
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+    document.body.classList.remove('landing-menu-open');
+  };
+
+  // Feature pill modals
+  const featureModals: Record<string, FeatureModalInfo> = {
+    benefits: {
+      title: 'Permanent Financial Health Loop',
+      badge: 'Core Architecture',
+      description:
+        'FinCoach moves beyond passive tracking by enforcing a closed intelligence loop that continuously forecasts future cash balances and protects wallet liquidity.',
+      points: [
+        'Continuous loop: Track → Understand → Forecast → Alert → Coach → Act.',
+        'Deterministic and transparent formulas with zero hallucinated figures.',
+        'Seamless integration with the Bangladeshi upay digital wallet ecosystem.',
+      ],
+      route: '/dashboard',
+      icon: <TrendingUp className="w-5 h-5 text-emerald-400" />,
+    },
+    forecaster: {
+      title: 'Explainable Cash-Flow Forecaster',
+      badge: 'Differentiator #1',
+      description:
+        'Multi-horizon forecasting projecting 7-day, 30-day, and 90-day cash trajectories using weighted historical moving averages and recurring liability detection.',
+      points: [
+        'Automated recurring payment detection (Rent, DESCO, Link3, DPS, GP recharge).',
+        'Early liquidity shortage warnings when projected balance dips below upcoming bills.',
+        'Clear confidence indicators grounded in real transaction history length.',
+      ],
+      route: '/forecast',
+      icon: <LineChart className="w-5 h-5 text-sky-400" />,
+    },
+    coach: {
+      title: 'AI Financial Health Coach',
+      badge: 'Differentiator #2',
+      description:
+        'An intelligent financial companion powered by Gemini that communicates in structured Observed / Forecast / Suggestion syntax with zero direct database access.',
+      points: [
+        'Privacy-first architecture: AI receives sanitized analytical snapshots only.',
+        'Strict safety protocols: Never gives speculative or unauthorized financial advice.',
+        'Deterministic offline fallback ensures 100% continuous coaching uptime.',
+      ],
+      route: '/coach',
+      icon: <Cpu className="w-5 h-5 text-purple-400" />,
+    },
+    healthScore: {
+      title: 'Transparent 0–100 Financial Health Score',
+      badge: 'Differentiator #3',
+      description:
+        'An open, auditable metric that rewards disciplined savings behavior, budget compliance, liquidity buffer stability, and goal progression.',
+      points: [
+        'Savings Behavior (25 pts) benchmarked to healthy 20%+ savings rates.',
+        'Budget Adherence (25 pts) monitoring category caps in real time.',
+        'Cash-Flow Stability (25 pts) & Goal Progression (25 pts) tracking.',
+      ],
+      route: '/analytics',
+      icon: <ShieldCheck className="w-5 h-5 text-amber-400" />,
+    },
+  };
+
+  const handlePillClick = (key: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    closeMenu();
+    setActiveModal(featureModals[key]);
+  };
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-blue-600 selection:text-white">
-      {/* Navigation Bar */}
-      <nav className="border-b border-slate-800/80 backdrop-blur-xl sticky top-0 z-50 bg-slate-950/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-700 via-blue-600 to-teal-400 flex items-center justify-center text-white font-extrabold text-2xl shadow-xl shadow-blue-600/30">
-              ৳
+    <div className="landing-root">
+      {/* 1. Grain overlay at z-index 100 */}
+      <div className="landing-grain"></div>
+
+      {/* 2. Hero photo / background video */}
+      <div className="landing-hero-photo">
+        <video autoPlay muted loop playsInline preload="auto">
+          <source src="/hf_20260818_072341_50851634-bbc3-4c33-9acc-7647d4db44aa.mp4" type="video/mp4" />
+          <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260818_072341_50851634-bbc3-4c33-9acc-7647d4db44aa.mp4" type="video/mp4" />
+        </video>
+      </div>
+
+      {/* 3. Page layout: 3-row grid (Header, Hero bottom-centered, Stats footer) */}
+      <div className="landing-page">
+        {/* Fullscreen mobile menu backdrop */}
+        <div className="landing-menu-backdrop" onClick={closeMenu}></div>
+
+        {/* Header: 3-column grid */}
+        <header className="landing-header">
+          {/* Left: Logo */}
+          <Link to="/" className="landing-logo appear appear--scale" aria-label="upay.ai" style={{ ['--d' as any]: '0.08s' }}>
+            <svg className="landing-logo-mark" viewBox="0 0 24 24" fill="currentColor">
+              <g transform="rotate(-30 12 12)">
+                <circle cx="7.3" cy="3.2" r="1.45" />
+                <rect x="5.5" y="4.7" width="3.6" height="14.6" rx="1.8" />
+                <rect x="14.9" y="4.7" width="3.6" height="14.6" rx="1.8" />
+                <circle cx="16.7" cy="20.8" r="1.45" />
+              </g>
+            </svg>
+            <span>upay<span className="landing-logo-suffix">.ai</span></span>
+          </Link>
+
+          {/* Center: Liquid-metal pill navigation */}
+          <nav id="site-nav" className="landing-nav" aria-label="Primary">
+            <a
+              href="#benefits"
+              className="landing-nav-pill appear appear--scale"
+              style={{ ['--d' as any]: '0.16s' }}
+              onClick={(e) => handlePillClick('benefits', e)}
+            >
+              Benefits
+            </a>
+            <a
+              href="#forecast"
+              className="landing-nav-pill appear appear--soft"
+              style={{ ['--d' as any]: '0.28s' }}
+              onClick={(e) => handlePillClick('forecaster', e)}
+            >
+              Forecaster
+            </a>
+            <a
+              href="#coach"
+              className="landing-nav-pill appear appear--scale"
+              style={{ ['--d' as any]: '0.40s' }}
+              onClick={(e) => handlePillClick('coach', e)}
+            >
+              AI Coach
+            </a>
+            <a
+              href="#health-score"
+              className="landing-nav-pill appear appear--soft"
+              style={{ ['--d' as any]: '0.52s' }}
+              onClick={(e) => handlePillClick('healthScore', e)}
+            >
+              Health Score
+            </a>
+          </nav>
+
+          {/* Right: Header CTA + Mobile Burger */}
+          <button
+            onClick={() => handleQuickDemo('/dashboard')}
+            disabled={isLoggingIn}
+            className="landing-btn landing-btn-solid landing-header-cta appear appear--scale"
+            style={{ ['--d' as any]: '0.34s' }}
+          >
+            {isLoggingIn ? 'Launching...' : 'Explore Demo'}
+          </button>
+
+          <button
+            type="button"
+            className="landing-burger appear appear--scale"
+            aria-controls="site-nav"
+            aria-expanded={isMenuOpen}
+            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+            style={{ ['--d' as any]: '0.34s' }}
+            onClick={toggleMenu}
+          >
+            <span className="landing-burger-bar"></span>
+            <span className="landing-burger-bar"></span>
+            <span className="landing-burger-bar"></span>
+          </button>
+        </header>
+
+        {/* Main Hero: Bottom-centered */}
+        <main className="landing-hero" id="top">
+          <div className="landing-hero-copy">
+            {/* Badge */}
+            <div className="landing-badge appear appear--pop" style={{ ['--d' as any]: '0.22s' }}>
+              <svg className="landing-badge-star" viewBox="0 0 24 24" fill="white">
+                <path d="M12 2.6C12.55 2.6 12.88 3.15 13.08 4.7c.62 4.7 1.52 5.6 6.22 6.22 1.55.2 2.1.53 2.1 1.08s-.55.88-2.1 1.08c-4.7.62-5.6 1.52-6.22 6.22-.2 1.55-.53 2.1-1.08 2.1s-.88-.55-1.08-2.1c-.62-4.7-1.52-5.6-6.22-6.22C3.15 12.88 2.6 12.55 2.6 12s.55-.88 2.1-1.08c4.7-.62 5.6-1.52 6.22-6.22C11.12 3.15 11.45 2.6 12 2.6Z" />
+              </svg>
+              <span>Operational AI Financial Infrastructure</span>
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-xl text-white tracking-tight">upay</span>
-                <span className="font-semibold text-xs text-blue-400 px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20">
-                  FinCoach Concept
+
+            {/* H1: Two masked lines with Instrument Serif italic highlight */}
+            <h1 className="landing-hero-headline">
+              <span className="landing-headline-line">
+                <span className="appear appear--mask" style={{ ['--d' as any]: '0.42s' }}>
+                  Train <em>AI agents</em> on your
                 </span>
-              </div>
-              <p className="text-[11px] text-slate-400 font-medium">
-                AI Financial Health Coach & Forecaster
-              </p>
+              </span>
+              <span className="landing-headline-line">
+                <span className="appear appear--mask" style={{ ['--d' as any]: '0.62s' }}>
+                  cash flow in minutes.
+                </span>
+              </span>
+            </h1>
+
+            {/* Lede */}
+            <p className="landing-lede appear appear--soft" style={{ ['--d' as any]: '0.82s' }}>
+              Deploy adaptive AI agents that analyze transactions, forecast 30 to 90-day cash flow, and prevent liquidity shortages across your upay wallet.
+            </p>
+
+            {/* Actions */}
+            <div className="landing-hero-actions">
+              <button
+                onClick={() => handleQuickDemo('/dashboard')}
+                disabled={isLoggingIn}
+                className="landing-btn landing-btn-solid landing-hero-btn landing-hero-solid appear appear--btn"
+                style={{ ['--d' as any]: '0.96s' }}
+              >
+                {isLoggingIn ? 'Launching Live Demo...' : 'Explore Live Demo (1-Click)'}
+              </button>
+              <Link
+                to="/login"
+                className="landing-btn landing-hero-btn landing-hero-ghost appear appear--side"
+                style={{ ['--d' as any]: '1.10s' }}
+              >
+                Sign In / Register
+              </Link>
             </div>
           </div>
+        </main>
 
-          <div className="flex items-center gap-3">
-            <Link to="/login">
-              <Button variant="ghost" size="sm">
-                Sign In
-              </Button>
-            </Link>
-            <Button
-              variant="upay"
-              size="sm"
-              onClick={handleQuickDemo}
-              rightIcon={<ArrowRight className="w-4 h-4" />}
+        {/* Stats footer: Exact vector icons */}
+        <footer className="landing-stats">
+          {/* Stat 1: Dual-pill / workflow icon */}
+          <div className="landing-stat appear appear--stat" style={{ ['--d' as any]: '1.12s' }}>
+            <svg className="landing-stat-icon" viewBox="0 0 24 24" fill="none">
+              <defs>
+                <linearGradient id="upay-grad-pill-left" x1="3" y1="2" x2="14" y2="22" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stopColor="#ffffff" stopOpacity="0.38" />
+                  <stop offset="100%" stopColor="#3a3a3a" stopOpacity="0.62" />
+                </linearGradient>
+                <linearGradient id="upay-grad-pill-right" x1="3" y1="2" x2="14" y2="22" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stopColor="#3a3a3a" stopOpacity="0.38" />
+                  <stop offset="100%" stopColor="#ffffff" stopOpacity="0.62" />
+                </linearGradient>
+              </defs>
+              <rect x="3.4" y="2.6" width="7.2" height="18.8" rx="3.6" fill="url(#upay-grad-pill-left)" />
+              <rect x="13.4" y="2.6" width="7.2" height="18.8" rx="3.6" fill="url(#upay-grad-pill-right)" />
+              <rect x="9.2" y="10.9" width="5.6" height="2.2" rx="1.1" fill="#4a4a4a" />
+            </svg>
+            <span>৳4.2M+ cash flow forecasted</span>
+          </div>
+
+          {/* Stat 2: Download tile icon */}
+          <div className="landing-stat appear appear--stat" style={{ ['--d' as any]: '1.28s' }}>
+            <svg className="landing-stat-icon" viewBox="0 0 24 24" fill="none">
+              <rect x="2.4" y="2.4" width="19.2" height="19.2" rx="6.2" fill="#ffffff" />
+              <path d="M12 7.1v7.4" stroke="#111111" strokeWidth="1.85" strokeLinecap="round" />
+              <path d="M8.15 12.35L12 16.2l3.85-3.85" stroke="#111111" strokeWidth="1.85" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <span>92% reduction in cash shortage risk</span>
+          </div>
+
+          {/* Stat 3: Three avatars icon */}
+          <div className="landing-stat appear appear--stat" style={{ ['--d' as any]: '1.44s' }}>
+            <svg className="landing-stat-icon-wide" viewBox="0 0 40 22" fill="none">
+              {/* Dark circle with pale face */}
+              <circle cx="10.2" cy="11" r="9.2" fill="#2b2b2b" />
+              <ellipse cx="10.2" cy="12.1" rx="4.15" ry="3.7" fill="#f4f4f4" />
+              <polygon points="7.2,5.2 9,8.5 6,8.2" fill="#2b2b2b" />
+              <polygon points="13.2,5.2 14.4,8.2 11.4,8.5" fill="#2b2b2b" />
+              <circle cx="8.9" cy="11.8" r="0.7" fill="#1a1a1a" />
+              <circle cx="11.5" cy="11.8" r="0.7" fill="#1a1a1a" />
+
+              {/* White circle with smiley face */}
+              <circle cx="20.2" cy="11" r="9.2" fill="#ffffff" />
+              <circle cx="18.2" cy="10.2" r="1.7" fill="#111111" />
+              <circle cx="22.2" cy="10.2" r="1.7" fill="#111111" />
+              <ellipse cx="20.2" cy="12.3" rx="1.1" ry="0.7" fill="#111111" />
+              <path d="M17.8 14.2c1.2 1.3 3.6 1.3 4.8 0" stroke="#111111" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+
+              {/* Orange circle with letter 'e' */}
+              <circle cx="30.2" cy="11" r="9.2" fill="#f26b1d" />
+              <text x="30.2" y="15.1" fontFamily="'Inter', system-ui, sans-serif" fontWeight="700" fontSize="12.5" fill="#ffffff" textAnchor="middle">e</text>
+            </svg>
+            <span>180K+ active digital wallets</span>
+          </div>
+        </footer>
+      </div>
+
+      {/* Feature Preview Modal */}
+      {activeModal && (
+        <div
+          className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/75 backdrop-blur-xl animate-fade-in"
+          onClick={() => setActiveModal(null)}
+        >
+          <div
+            className="relative w-full max-w-lg p-7 rounded-2xl bg-[#0e0e0e]/95 border border-white/20 shadow-2xl text-left"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setActiveModal(null)}
+              className="absolute top-5 right-5 w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 transition-colors"
             >
-              Explore Live Demo
-            </Button>
-          </div>
-        </div>
-      </nav>
+              <X className="w-4 h-4" />
+            </button>
 
-      {/* Hero Section */}
-      <section className="relative pt-20 pb-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center flex-1 flex flex-col justify-center">
-        {/* Glow ambient background */}
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-600/15 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute top-1/2 left-1/3 w-80 h-80 bg-teal-500/10 rounded-full blur-[100px] pointer-events-none" />
-
-        <div className="relative z-10 max-w-4xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold mb-6">
-            <Sparkles className="w-3.5 h-3.5 text-teal-400" />
-            Designed for Bangladesh Digital Finance Ecosystem
-          </div>
-
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.15] mb-6">
-            Your Money, <br />
-            <span className="gradient-text">Understood & Forecasted.</span>
-          </h1>
-
-          <p className="text-lg sm:text-xl text-slate-300 font-normal max-w-2xl mx-auto mb-10 leading-relaxed">
-            Move beyond passive expense tracking. Understand your spending behavior, forecast future
-            cash flows across 30 to 90 days, identify liquidity shortages in advance, and receive
-            actionable coaching tailored to Bangladesh.
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button
-              variant="upay"
-              size="lg"
-              onClick={handleQuickDemo}
-              className="w-full sm:w-auto text-base px-8 py-3.5 shadow-2xl shadow-blue-600/30"
-              rightIcon={<ArrowRight className="w-5 h-5" />}
-            >
-              Launch Live Demo (1-Click)
-            </Button>
-            <Link to="/register" className="w-full sm:w-auto">
-              <Button variant="outline" size="lg" className="w-full text-base px-8 py-3.5">
-                Create Free Account
-              </Button>
-            </Link>
-          </div>
-
-          {/* Quick Features Highlights */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16 pt-12 border-t border-slate-800/80 text-left">
-            <div className="p-4 rounded-2xl glass-panel">
-              <div className="w-8 h-8 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 mb-2">
-                <Sparkles className="w-4 h-4" />
-              </div>
-              <h4 className="text-sm font-semibold text-white">AI Health Coach</h4>
-              <p className="text-xs text-slate-400 mt-1">
-                Context-grounded guidance with Observed, Forecast, and Suggestion rules.
-              </p>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                {activeModal.icon}
+              </span>
+              <span className="text-xs uppercase tracking-wider font-semibold text-slate-400">
+                {activeModal.badge}
+              </span>
             </div>
 
-            <div className="p-4 rounded-2xl glass-panel">
-              <div className="w-8 h-8 rounded-xl bg-teal-500/10 flex items-center justify-center text-teal-400 mb-2">
-                <LineChart className="w-4 h-4" />
-              </div>
-              <h4 className="text-sm font-semibold text-white">Cash-Flow Forecaster</h4>
-              <p className="text-xs text-slate-400 mt-1">
-                Explainable 7-day, 30-day, and 90-day cash projections & recurring bill detection.
-              </p>
+            <h3 className="text-2xl font-bold text-white tracking-tight mb-2">
+              {activeModal.title}
+            </h3>
+
+            <p className="text-sm text-slate-300 leading-relaxed mb-5">
+              {activeModal.description}
+            </p>
+
+            <div className="space-y-2.5 mb-7 bg-white/[0.03] p-4 rounded-xl border border-white/10">
+              {activeModal.points.map((pt, i) => (
+                <div key={i} className="flex items-start gap-2.5 text-xs text-slate-200">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-1.5 flex-shrink-0" />
+                  <span>{pt}</span>
+                </div>
+              ))}
             </div>
 
-            <div className="p-4 rounded-2xl glass-panel">
-              <div className="w-8 h-8 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400 mb-2">
-                <ShieldCheck className="w-4 h-4" />
-              </div>
-              <h4 className="text-sm font-semibold text-white">Health Score 0-100</h4>
-              <p className="text-xs text-slate-400 mt-1">
-                100% transparent formula factoring savings behavior, budgets, and cash stability.
-              </p>
-            </div>
-
-            <div className="p-4 rounded-2xl glass-panel">
-              <div className="w-8 h-8 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400 mb-2">
-                <Zap className="w-4 h-4" />
-              </div>
-              <h4 className="text-sm font-semibold text-white">upay Integration</h4>
-              <p className="text-xs text-slate-400 mt-1">
-                Simulated digital wallet payments, mobile recharges, bills, and digital DPS.
-              </p>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => handleQuickDemo(activeModal.route)}
+                disabled={isLoggingIn}
+                className="landing-btn landing-btn-solid flex-1 h-11 text-xs"
+              >
+                <span>Launch in Live Demo</span>
+                <ArrowRight className="w-3.5 h-3.5 ml-2" />
+              </button>
+              <button
+                onClick={() => setActiveModal(null)}
+                className="landing-btn landing-hero-ghost px-4 h-11 text-xs"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>
-      </section>
-
-      {/* The Core Product Loop */}
-      <section className="py-20 border-t border-slate-800/80 bg-slate-900/40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <span className="text-xs font-bold text-teal-400 uppercase tracking-widest">
-            Continuous Intelligence Loop
-          </span>
-          <h2 className="text-3xl font-extrabold text-white mt-2 mb-12">
-            Built Around the FinCoach Permanent Loop
-          </h2>
-
-          <div className="flex flex-wrap items-center justify-center gap-3 text-xs font-semibold">
-            {['TRACK', 'UNDERSTAND', 'FORECAST', 'ALERT', 'COACH', 'ACT', 'TRACK AGAIN'].map(
-              (step, idx) => (
-                <React.Fragment key={step}>
-                  <div className="px-4 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700/80 text-slate-200 shadow-md">
-                    {step}
-                  </div>
-                  {idx < 6 && <span className="text-blue-500 font-bold text-base">→</span>}
-                </React.Fragment>
-              )
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-slate-800 py-8 px-4 text-center text-xs text-slate-500">
-        <p>
-          upay FinCoach Prototype • Built for fintech innovation demonstrations and research in
-          Bangladesh.
-        </p>
-        <p className="mt-1">
-          Not officially affiliated with UCB/upay unless authorized. All simulated transaction data
-          is generated for demonstration.
-        </p>
-      </footer>
+      )}
     </div>
   );
 };

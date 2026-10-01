@@ -61,6 +61,22 @@
   padding: 18px 40px;
 }
 
+.specular-button--upay {
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #0d9488 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 10px 25px -5px rgba(29, 78, 216, 0.45),
+    0 8px 10px -6px rgba(13, 148, 136, 0.35);
+}
+
+.specular-button--upay:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #14b8a6 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 14px 28px -4px rgba(37, 99, 235, 0.55),
+    0 10px 14px -5px rgba(20, 184, 166, 0.45);
+}
+
 /* Canvas extends past the button so the rim glow can bleed outside the edge */
 .specular-button__fx {
   position: absolute;
@@ -78,4 +94,8 @@
 .specular-button__label {
   position: relative;
   z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }

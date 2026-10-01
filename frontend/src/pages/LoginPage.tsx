@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Lock, Mail, ArrowRight, ArrowLeft, ShieldCheck } from 'lucide-react';
-import { Button } from '../components/ui/Button';
 import StrokeText from '../components/ui/StrokeText';
 import BorderGlow from '../components/ui/BorderGlow';
 import Ferrofluid from '../components/ui/Ferrofluid';
@@ -206,15 +205,40 @@ export const LoginPage: React.FC = () => {
                   </div>
                 </div>
 
-                <Button
+                <SpecularButton
                   type="submit"
+                  size="md"
+                  radius={14}
                   variant="upay"
-                  className="w-full mt-2"
-                  isLoading={isLoading}
-                  rightIcon={<ArrowRight className="w-4 h-4" />}
+                  textColor="#ffffff"
+                  lineColor="#ffffff"
+                  baseColor="#1d4ed8"
+                  intensity={1.35}
+                  shineSize={28}
+                  shineFade={32}
+                  thickness={1.1}
+                  speed={0.85}
+                  followMouse={true}
+                  proximity={330}
+                  autoAnimate={true}
+                  disabled={isLoading}
+                  className="w-full mt-2 font-semibold"
                 >
-                  Sign In to FinCoach
-                </Button>
+                  {isLoading ? (
+                    <span className="inline-flex items-center justify-center gap-2">
+                      <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      Signing In...
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center justify-center gap-2">
+                      Sign In to FinCoach
+                      <ArrowRight className="w-4 h-4" />
+                    </span>
+                  )}
+                </SpecularButton>
               </form>
 
               {/* 1-Click Demo Fill */}

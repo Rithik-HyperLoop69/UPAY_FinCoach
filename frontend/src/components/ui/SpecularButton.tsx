@@ -71,6 +71,7 @@ void main() {
 export interface SpecularButtonProps {
   children?: React.ReactNode;
   size?: 'sm' | 'md' | 'lg';
+  variant?: 'default' | 'upay';
   radius?: number;
   tint?: string;
   tintOpacity?: number;
@@ -96,13 +97,14 @@ export interface SpecularButtonProps {
 const SpecularButton: React.FC<SpecularButtonProps> = ({
   children = 'Get Started',
   size = 'lg',
+  variant = 'default',
   radius = 18,
   tint = '#ffffff',
   tintOpacity = 0,
   blur = 0,
   textColor = '#f5f5f5',
   lineColor = '#ffffff',
-  baseColor = '#525252',
+  baseColor,
   intensity = 1,
   shineSize = 10,
   shineFade = 40,
@@ -117,12 +119,13 @@ const SpecularButton: React.FC<SpecularButtonProps> = ({
   type = 'button',
   style,
 }) => {
+  const resolvedBaseColor = baseColor ?? (variant === 'upay' ? '#1d4ed8' : '#525252');
   const btnRef = useRef<HTMLButtonElement | null>(null);
   const fxRef = useRef<HTMLSpanElement | null>(null);
   const propsRef = useRef({
     radius,
     lineColor,
-    baseColor,
+    baseColor: resolvedBaseColor,
     intensity,
     shineSize,
     shineFade,
@@ -136,7 +139,7 @@ const SpecularButton: React.FC<SpecularButtonProps> = ({
   propsRef.current = {
     radius,
     lineColor,
-    baseColor,
+    baseColor: resolvedBaseColor,
     intensity,
     shineSize,
     shineFade,
@@ -282,7 +285,7 @@ const SpecularButton: React.FC<SpecularButtonProps> = ({
       type={type}
       disabled={disabled}
       onClick={onClick}
-      className={`specular-button specular-button--${size}${className ? ` ${className}` : ''}`}
+      className={`specular-button specular-button--${size}${variant !== 'default' ? ` specular-button--${variant}` : ''}${className ? ` ${className}` : ''}`}
       style={{
         ['--sb-radius' as any]: `${radius}px`,
         ['--sb-tint' as any]: tint,

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { X, ArrowRight, Sparkles, TrendingUp, ShieldCheck, LineChart, Cpu } from 'lucide-react';
+import GlowCursor from '../components/ui/GlowCursor';
 import './LandingPage.css';
 
 interface FeatureModalInfo {
@@ -206,8 +207,28 @@ export const LandingPage: React.FC = () => {
 
   return (
     <div className="landing-root">
-      {/* 1. Grain overlay at z-index 100 */}
-      <div className="landing-grain"></div>
+      <GlowCursor
+        color="#67E8F9"
+        secondaryColor="#A78BFA"
+        trailLength={40}
+        trailWidth={8}
+        trailTaper={0.8}
+        followSpeed={0.16}
+        glowIntensity={1.9}
+        glowSpread={1.2}
+        hotspot={0.65}
+        brightness={1.25}
+        opacity={1}
+        pulseSpeed={1.1}
+        noiseStrength={0.035}
+        idleFade={true}
+        idleTimeout={700}
+        fadeDuration={900}
+        blendMode="screen"
+        className="landing-glow-wrapper"
+      >
+        {/* 1. Grain overlay at z-index 100 */}
+        <div className="landing-grain"></div>
 
       {/* 2. Hero photo / background video */}
       <div className="landing-hero-photo">
@@ -407,6 +428,7 @@ export const LandingPage: React.FC = () => {
           </div>
         </footer>
       </div>
+      </GlowCursor>
 
       {/* Feature Preview Modal */}
       {activeModal && (

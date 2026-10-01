@@ -231,27 +231,16 @@ export const LoginPage: React.FC = () => {
           </BorderGlow>
         </TiltedCard>
 
-        <div className="mt-6 flex flex-col items-center gap-2.5">
-          <p className="text-center text-xs text-slate-400">
-            Don't have an account yet?{' '}
-            <button
-              type="button"
-              onClick={() => navigateWithShutter('/register')}
-              className="text-blue-400 hover:underline font-semibold bg-transparent border-none p-0 inline cursor-pointer"
-            >
-              Create Free Account
-            </button>
-          </p>
-
+        <p className="text-center text-xs text-slate-400 mt-6">
+          Don't have an account yet?{' '}
           <button
             type="button"
-            onClick={() => navigateWithShutter('/')}
-            className="group inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors cursor-pointer py-1"
+            onClick={() => navigateWithShutter('/register')}
+            className="text-blue-400 hover:underline font-semibold bg-transparent border-none p-0 inline cursor-pointer"
           >
-            <ArrowLeft className="w-3.5 h-3.5 text-slate-400 group-hover:text-cyan-400 group-hover:-translate-x-0.5 transition-all" />
-            <span>Return to Landing Page</span>
+            Create Free Account
           </button>
-        </div>
+        </p>
       </div>
     </div>
   );

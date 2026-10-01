@@ -185,27 +185,16 @@ export const RegisterPage: React.FC = () => {
           </form>
         </div>
 
-        <div className="mt-6 flex flex-col items-center gap-2.5">
-          <p className="text-center text-xs text-slate-400">
-            Already have an account?{' '}
-            <button
-              type="button"
-              onClick={() => navigateWithShutter('/login')}
-              className="text-blue-400 hover:underline font-semibold bg-transparent border-none p-0 inline cursor-pointer"
-            >
-              Sign In
-            </button>
-          </p>
-
+        <p className="text-center text-xs text-slate-400 mt-6">
+          Already have an account?{' '}
           <button
             type="button"
-            onClick={() => navigateWithShutter('/')}
-            className="group inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors cursor-pointer py-1"
+            onClick={() => navigateWithShutter('/login')}
+            className="text-blue-400 hover:underline font-semibold bg-transparent border-none p-0 inline cursor-pointer"
           >
-            <ArrowLeft className="w-3.5 h-3.5 text-slate-400 group-hover:text-teal-400 group-hover:-translate-x-0.5 transition-all" />
-            <span>Return to Landing Page</span>
+            Sign In
           </button>
-        </div>
+        </p>
       </div>
     </div>
   );

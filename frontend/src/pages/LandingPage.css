@@ -835,6 +835,31 @@ body.landing-menu-open .landing-burger-bar:nth-child(3) {
     pointer-events: auto;
   }
 
+  .landing-nav .dock-container {
+    width: 100%;
+  }
+
+  .landing-nav .dock-panel {
+    flex-direction: column;
+    width: 100%;
+    gap: 12px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .landing-nav .dock-item {
+    width: 100% !important;
+    height: 56px !important;
+    font-size: 18px !important;
+    border-radius: 10px !important;
+    transform: none !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   .landing-nav-pill {
     width: 100%;
     height: 56px;

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { X, ArrowRight, Sparkles, TrendingUp, ShieldCheck, LineChart, Cpu } from 'lucide-react';
 import GlowCursor from '../components/ui/GlowCursor';
+import Dock, { DockItemData } from '../components/ui/Dock';
 import './LandingPage.css';
 
 interface FeatureModalInfo {
@@ -205,6 +206,33 @@ export const LandingPage: React.FC = () => {
     setActiveModal(featureModals[key]);
   };
 
+  const dockItems: DockItemData[] = [
+    {
+      label: 'Benefits',
+      icon: <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />,
+      onClick: (e) => handlePillClick('benefits', e),
+      href: '#benefits',
+    },
+    {
+      label: 'Forecaster',
+      icon: <LineChart className="w-3.5 h-3.5 text-sky-400" />,
+      onClick: (e) => handlePillClick('forecaster', e),
+      href: '#forecast',
+    },
+    {
+      label: 'AI Coach',
+      icon: <Cpu className="w-3.5 h-3.5 text-purple-400" />,
+      onClick: (e) => handlePillClick('coach', e),
+      href: '#coach',
+    },
+    {
+      label: 'Health Score',
+      icon: <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />,
+      onClick: (e) => handlePillClick('healthScore', e),
+      href: '#health-score',
+    },
+  ];
+
   return (
     <div className="landing-root">
       <GlowCursor
@@ -258,41 +286,10 @@ export const LandingPage: React.FC = () => {
             <span>upay<span className="landing-logo-suffix">.ai</span></span>
           </Link>
 
-          {/* Center: Liquid-metal pill navigation */}
-          <nav id="site-nav" className="landing-nav" aria-label="Primary">
-            <a
-              href="#benefits"
-              className="landing-nav-pill appear appear--scale"
-              style={{ ['--d' as any]: '0.16s' }}
-              onClick={(e) => handlePillClick('benefits', e)}
-            >
-              Benefits
-            </a>
-            <a
-              href="#forecast"
-              className="landing-nav-pill appear appear--soft"
-              style={{ ['--d' as any]: '0.28s' }}
-              onClick={(e) => handlePillClick('forecaster', e)}
-            >
-              Forecaster
-            </a>
-            <a
-              href="#coach"
-              className="landing-nav-pill appear appear--scale"
-              style={{ ['--d' as any]: '0.40s' }}
-              onClick={(e) => handlePillClick('coach', e)}
-            >
-              AI Coach
-            </a>
-            <a
-              href="#health-score"
-              className="landing-nav-pill appear appear--soft"
-              style={{ ['--d' as any]: '0.52s' }}
-              onClick={(e) => handlePillClick('healthScore', e)}
-            >
-              Health Score
-            </a>
-          </nav>
+          {/* Center: Top Animated Dock Navigation */}
+          <div id="site-nav" className="landing-nav" aria-label="Primary">
+            <Dock items={dockItems} distance={120} magnification={1.18} />
+          </div>
 
           {/* Right: Header CTA + Mobile Burger */}
           <button

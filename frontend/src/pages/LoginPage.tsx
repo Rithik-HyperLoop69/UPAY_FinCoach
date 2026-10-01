@@ -4,6 +4,7 @@ import { Lock, Mail, ArrowRight, ShieldCheck } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import StrokeText from '../components/ui/StrokeText';
 import BorderGlow from '../components/ui/BorderGlow';
+import Ferrofluid from '../components/ui/Ferrofluid';
 import { useAuth } from '../context/AuthContext';
 
 export const LoginPage: React.FC = () => {
@@ -36,9 +37,30 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center p-4">
-      {/* Glow ambient background */}
-      <div className="absolute w-96 h-96 bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
+    <div className="min-h-screen bg-[#03010a] relative overflow-hidden flex flex-col justify-center items-center p-4">
+      {/* Animated Ferrofluid WebGL Background */}
+      <div className="absolute inset-0 z-0">
+        <Ferrofluid
+          colors={['#38bdf8', '#818cf8', '#06b6d4']}
+          speed={0.4}
+          scale={1.35}
+          turbulence={1.1}
+          fluidity={0.12}
+          rimWidth={0.22}
+          sharpness={2.6}
+          shimmer={1.3}
+          glow={2.2}
+          flowDirection="down"
+          opacity={0.75}
+          mouseInteraction={true}
+          mouseStrength={1.2}
+          mouseRadius={0.35}
+          className="w-full h-full"
+        />
+      </div>
+
+      {/* Subtle Depth Vignette for Optimal Contrast */}
+      <div className="absolute inset-0 pointer-events-none z-[1] bg-gradient-to-b from-black/50 via-transparent to-black/70 backdrop-blur-[0.5px]" />
 
       <div className="relative z-10 w-full max-w-md">
         {/* Brand */}

@@ -8,6 +8,8 @@ import Ferrofluid from '../components/ui/Ferrofluid';
 import TiltedCard from '../components/ui/TiltedCard';
 import { useAuth } from '../context/AuthContext';
 import { usePageTransition } from '../context/PageTransitionContext';
+import { ShaderButtons } from '@designcodeio/threeui';
+import '@designcodeio/threeui/style.css';
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -231,16 +233,44 @@ export const LoginPage: React.FC = () => {
           </BorderGlow>
         </TiltedCard>
 
-        <p className="text-center text-xs text-slate-400 mt-6">
-          Don't have an account yet?{' '}
-          <button
-            type="button"
+        {/* Separate "Create Free Account" Button with ThreeUI Iridescent Glass Shader */}
+        <div className="mt-8 pt-6 border-t border-white/[0.08] flex flex-col items-center text-center">
+          <div className="flex items-center gap-3 w-full max-w-[280px] mb-3.5">
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+            <span className="text-[11px] font-semibold tracking-wider uppercase text-slate-400 font-mono">
+              New to FinCoach?
+            </span>
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+          </div>
+
+          <div
+            className="shader-frame cursor-pointer"
             onClick={() => navigateWithShutter('/register')}
-            className="text-blue-400 hover:underline font-semibold bg-transparent border-none p-0 inline cursor-pointer"
+            role="button"
+            tabIndex={0}
+            aria-label="Create Free Account"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                navigateWithShutter('/register');
+              }
+            }}
           >
-            Create Free Account
-          </button>
-        </p>
+            <ShaderButtons
+              variant="iridescent-glass"
+              mode="dark"
+              hue={0}
+              saturation={1.00}
+              brightness={1.00}
+              label="Create Free Account"
+              onClick={() => navigateWithShutter('/register')}
+            />
+          </div>
+
+          <p className="text-[11px] text-slate-500 mt-2.5 font-medium tracking-tight">
+            Instant setup in 2 minutes • No credit card required
+          </p>
+        </div>
       </div>
     </div>
   );

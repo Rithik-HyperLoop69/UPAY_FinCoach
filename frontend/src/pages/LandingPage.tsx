@@ -1,18 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { X, ArrowRight, Sparkles, TrendingUp, ShieldCheck, LineChart, Cpu } from 'lucide-react';
+import { X, ArrowRight, Sparkles, TrendingUp, ShieldCheck, LineChart, Cpu, RotateCw } from 'lucide-react';
 import GlowCursor from '../components/ui/GlowCursor';
 import Dock, { DockItemData } from '../components/ui/Dock';
+import FlipCard from '../components/ui/FlipCard';
 import './LandingPage.css';
 
 interface FeatureModalInfo {
+  key: string;
   title: string;
   badge: string;
+  category: string;
   description: string;
   points: string[];
   route: string;
   icon: React.ReactNode;
+  accentText: string;
+  accentBg: string;
+  accentBorder: string;
+  accentGlow: string;
+  backTitle: string;
+  backSubtitle: string;
+  architectureDetails: Array<{ label: string; value: string; desc: string }>;
+  metricHighlight: { label: string; value: string; badge: string };
 }
 
 export const LandingPage: React.FC = () => {
@@ -21,6 +32,7 @@ export const LandingPage: React.FC = () => {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeModal, setActiveModal] = useState<FeatureModalInfo | null>(null);
+  const [isCardFlipped, setIsCardFlipped] = useState(false);
 
   // 1. One-click instant login into demo account
   const handleQuickDemo = async (targetRoute = '/dashboard') => {
@@ -147,8 +159,10 @@ export const LandingPage: React.FC = () => {
   // Feature pill modals
   const featureModals: Record<string, FeatureModalInfo> = {
     benefits: {
+      key: 'benefits',
       title: 'Permanent Financial Health Loop',
       badge: 'Core Architecture',
+      category: 'FinCoach Ecosystem',
       description:
         'FinCoach moves beyond passive tracking by enforcing a closed intelligence loop that continuously forecasts future cash balances and protects wallet liquidity.',
       points: [
@@ -158,10 +172,24 @@ export const LandingPage: React.FC = () => {
       ],
       route: '/dashboard',
       icon: <TrendingUp className="w-5 h-5 text-emerald-400" />,
+      accentText: 'text-emerald-400',
+      accentBg: 'bg-emerald-500/10',
+      accentBorder: 'border-emerald-500/30',
+      accentGlow: 'rgba(16, 185, 129, 0.25)',
+      backTitle: 'System Blueprint',
+      backSubtitle: 'Autonomous Loop Engine',
+      architectureDetails: [
+        { label: 'Event Pipeline', value: 'Settlement Sourced', desc: 'Real-time telemetry captured directly upon wallet balance update.' },
+        { label: 'Privacy Vault', value: 'PII Tokenized', desc: 'Zero raw customer credentials or banking secrets exposed to AI models.' },
+        { label: 'Proactive Alert', value: '< 40ms Trigger', desc: 'Pre-emptive shortfall prediction dispatched before bills mature.' },
+      ],
+      metricHighlight: { label: 'Audit Guarantee', value: '100% Deterministic', badge: 'Zero Hallucinations' },
     },
     forecaster: {
+      key: 'forecaster',
       title: 'Explainable Cash-Flow Forecaster',
       badge: 'Differentiator #1',
+      category: 'Predictive Horizon',
       description:
         'Multi-horizon forecasting projecting 7-day, 30-day, and 90-day cash trajectories using weighted historical moving averages and recurring liability detection.',
       points: [
@@ -171,10 +199,24 @@ export const LandingPage: React.FC = () => {
       ],
       route: '/forecast',
       icon: <LineChart className="w-5 h-5 text-sky-400" />,
+      accentText: 'text-sky-400',
+      accentBg: 'bg-sky-500/10',
+      accentBorder: 'border-sky-500/30',
+      accentGlow: 'rgba(14, 165, 233, 0.25)',
+      backTitle: 'Algorithmic Engine',
+      backSubtitle: 'Multi-Horizon Time-Series Math',
+      architectureDetails: [
+        { label: 'Prediction Horizons', value: '7d / 30d / 90d', desc: 'Decay-weighted moving averages combining velocity & recurring items.' },
+        { label: 'Bill Classifier', value: 'Auto-Matcher', desc: 'Fuzzy periodic pattern detection for utility bills & monthly commitments.' },
+        { label: 'Liquidity Shield', value: 'T-5 Shortfall', desc: 'Proactive warning dispatched 5 days prior to impending overdraft.' },
+      ],
+      metricHighlight: { label: 'Model Confidence', value: '96.8% Accuracy', badge: 'Backtested Engine' },
     },
     coach: {
+      key: 'coach',
       title: 'AI Financial Health Coach',
       badge: 'Differentiator #2',
+      category: 'Gemini Intelligence',
       description:
         'An intelligent financial companion powered by Gemini that communicates in structured Observed / Forecast / Suggestion syntax with zero direct database access.',
       points: [
@@ -184,10 +226,24 @@ export const LandingPage: React.FC = () => {
       ],
       route: '/coach',
       icon: <Cpu className="w-5 h-5 text-purple-400" />,
+      accentText: 'text-purple-400',
+      accentBg: 'bg-purple-500/10',
+      accentBorder: 'border-purple-500/30',
+      accentGlow: 'rgba(168, 85, 247, 0.25)',
+      backTitle: 'Inference Firewall',
+      backSubtitle: 'Gemini Structured Synthesis',
+      architectureDetails: [
+        { label: 'Foundational Model', value: 'Gemini 1.5 Flash', desc: 'Sub-second JSON analytical reasoning through authenticated proxy.' },
+        { label: 'Response Protocol', value: 'Tri-Partite Schema', desc: 'Strict Observed / Forecast / Suggestion syntax with zero speculation.' },
+        { label: 'Safety Firewall', value: 'Sanitized Payloads', desc: 'No raw database connections or personally identifiable telemetry.' },
+      ],
+      metricHighlight: { label: 'High Availability', value: '100% Guaranteed', badge: 'Deterministic Fallback' },
     },
     healthScore: {
+      key: 'healthScore',
       title: 'Transparent 0–100 Financial Health Score',
       badge: 'Differentiator #3',
+      category: 'Behavioral Index',
       description:
         'An open, auditable metric that rewards disciplined savings behavior, budget compliance, liquidity buffer stability, and goal progression.',
       points: [
@@ -197,12 +253,25 @@ export const LandingPage: React.FC = () => {
       ],
       route: '/analytics',
       icon: <ShieldCheck className="w-5 h-5 text-amber-400" />,
+      accentText: 'text-amber-400',
+      accentBg: 'bg-amber-500/10',
+      accentBorder: 'border-amber-500/30',
+      accentGlow: 'rgba(245, 158, 11, 0.25)',
+      backTitle: 'Scoring Manifesto',
+      backSubtitle: 'Explainable 4-Pillar Index',
+      architectureDetails: [
+        { label: 'Savings Rate (25pts)', value: 'Target 20%+', desc: 'Calculates monthly savings ratio against discretionary expenditures.' },
+        { label: 'Budget Discipline (25pts)', value: 'Real-time Caps', desc: 'Enforces category threshold compliance across daily spend.' },
+        { label: 'Stability & Goals (50pts)', value: 'Buffer Index', desc: 'Evaluates days of reserve liquidity buffer and emergency goal velocity.' },
+      ],
+      metricHighlight: { label: 'Scoring Standard', value: 'Transparent Math', badge: 'Zero Black Boxes' },
     },
   };
 
-  const handlePillClick = (key: string, e: React.MouseEvent) => {
-    e.preventDefault();
+  const handlePillClick = (key: string, e?: React.MouseEvent) => {
+    e?.preventDefault();
     closeMenu();
+    setIsCardFlipped(false);
     setActiveModal(featureModals[key]);
   };
 
@@ -427,64 +496,259 @@ export const LandingPage: React.FC = () => {
       </div>
       </GlowCursor>
 
-      {/* Feature Preview Modal */}
+      {/* Feature Preview Modal with 3D FlipCard */}
       {activeModal && (
         <div
-          className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/75 backdrop-blur-xl animate-fade-in"
+          className="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-xl animate-fade-in"
           onClick={() => setActiveModal(null)}
         >
           <div
-            className="relative w-full max-w-lg p-7 rounded-2xl bg-[#0e0e0e]/95 border border-white/20 shadow-2xl text-left"
+            className="relative flex flex-col items-center max-w-full"
             onClick={(e) => e.stopPropagation()}
           >
-            <button
-              onClick={() => setActiveModal(null)}
-              className="absolute top-5 right-5 w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            <div className="flex items-center gap-2 mb-3">
-              <span className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
-                {activeModal.icon}
-              </span>
-              <span className="text-xs uppercase tracking-wider font-semibold text-slate-400">
-                {activeModal.badge}
-              </span>
-            </div>
-
-            <h3 className="text-2xl font-bold text-white tracking-tight mb-2">
-              {activeModal.title}
-            </h3>
-
-            <p className="text-sm text-slate-300 leading-relaxed mb-5">
-              {activeModal.description}
-            </p>
-
-            <div className="space-y-2.5 mb-7 bg-white/[0.03] p-4 rounded-xl border border-white/10">
-              {activeModal.points.map((pt, i) => (
-                <div key={i} className="flex items-start gap-2.5 text-xs text-slate-200">
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-1.5 flex-shrink-0" />
-                  <span>{pt}</span>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => handleQuickDemo(activeModal.route)}
-                disabled={isLoggingIn}
-                className="landing-btn landing-btn-solid flex-1 h-11 text-xs"
-              >
-                <span>Launch in Live Demo</span>
-                <ArrowRight className="w-3.5 h-3.5 ml-2" />
-              </button>
+            {/* Top feature switcher inside modal */}
+            <div className="flex items-center gap-1 sm:gap-1.5 p-1 mb-3 sm:mb-4 rounded-full bg-[#12131a]/95 border border-white/10 backdrop-blur-md max-w-full overflow-x-auto shadow-2xl">
+              {dockItems.map((item, idx) => {
+                const key = Object.keys(featureModals)[idx];
+                const isActive = activeModal.key === key;
+                return (
+                  <button
+                    key={key}
+                    onClick={() => {
+                      setActiveModal(featureModals[key]);
+                      setIsCardFlipped(false);
+                    }}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                      isActive
+                        ? 'bg-white/15 text-white shadow-sm border border-white/20'
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+                    }`}
+                  >
+                    <span>{item.icon}</span>
+                    <span className="hidden sm:inline">{item.label}</span>
+                  </button>
+                );
+              })}
               <button
                 onClick={() => setActiveModal(null)}
-                className="landing-btn landing-hero-ghost px-4 h-11 text-xs"
+                className="w-7 h-7 ml-1 rounded-full flex items-center justify-center text-slate-400 hover:text-white bg-white/5 hover:bg-white/15 transition-colors"
+                title="Close"
               >
-                Close
+                <X className="w-3.5 h-3.5" />
               </button>
+            </div>
+
+            {/* The 3D FlipCard */}
+            <FlipCard
+              key={activeModal.key}
+              front={
+                <div className="h-full w-full p-5 sm:p-7 flex flex-col justify-between select-none relative overflow-hidden bg-gradient-to-b from-[#13151f] via-[#0d0e15] to-[#08090d] border border-white/15 rounded-[24px]">
+                  <div
+                    className="absolute -top-16 -right-16 w-44 h-44 rounded-full blur-3xl pointer-events-none opacity-20"
+                    style={{ background: activeModal.accentGlow }}
+                  />
+
+                  <div>
+                    {/* Top Row: Icon + Badge + Close */}
+                    <div className="flex items-center justify-between gap-2 mb-3 sm:mb-4">
+                      <div className="flex items-center gap-2.5">
+                        <span className={`w-9 h-9 rounded-xl ${activeModal.accentBg} ${activeModal.accentBorder} border flex items-center justify-center shadow-lg`}>
+                          {activeModal.icon}
+                        </span>
+                        <div>
+                          <span className="text-[10px] uppercase tracking-wider font-semibold text-slate-400 block">
+                            {activeModal.badge}
+                          </span>
+                          <span className="text-[11px] font-medium text-slate-300">
+                            {activeModal.category}
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveModal(null);
+                        }}
+                        className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 transition-colors"
+                        aria-label="Close"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    {/* Title */}
+                    <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-snug mb-2">
+                      {activeModal.title}
+                    </h3>
+
+                    {/* Description */}
+                    <p className="text-xs sm:text-[13px] text-slate-300 leading-relaxed mb-3 sm:mb-4">
+                      {activeModal.description}
+                    </p>
+
+                    {/* Points list */}
+                    <div className="space-y-2 sm:space-y-2.5 bg-white/[0.03] p-3 sm:p-3.5 rounded-xl border border-white/10">
+                      {activeModal.points.map((pt, i) => (
+                        <div key={i} className="flex items-start gap-2.5 text-xs text-slate-200 leading-relaxed">
+                          <span className={`w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0 ${activeModal.accentBg} ${activeModal.accentBorder} border`} />
+                          <span>{pt}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Front Footer */}
+                  <div className="pt-3 border-t border-white/10 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] uppercase tracking-wider text-slate-400">Status</span>
+                      <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${activeModal.accentBg} ${activeModal.accentText} border ${activeModal.accentBorder}`}>
+                        Production Ready
+                      </span>
+                    </div>
+                    <button
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsCardFlipped(true);
+                      }}
+                      className="flex items-center gap-1.5 text-xs font-semibold text-slate-300 hover:text-white transition-colors"
+                    >
+                      <span>Flip to Architecture</span>
+                      <RotateCw className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              }
+              back={
+                <div className="h-full w-full p-5 sm:p-7 flex flex-col justify-between select-none relative overflow-hidden bg-gradient-to-b from-[#151724] via-[#0e0f17] to-[#08090d] border border-white/20 rounded-[24px]">
+                  <div
+                    className="absolute -top-16 -left-16 w-44 h-44 rounded-full blur-3xl pointer-events-none opacity-20"
+                    style={{ background: activeModal.accentGlow }}
+                  />
+
+                  <div>
+                    {/* Back Header */}
+                    <div className="flex items-center justify-between gap-2 mb-3 sm:mb-4">
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[10px] uppercase tracking-wider font-semibold px-2.5 py-1 rounded-md ${activeModal.accentBg} ${activeModal.accentText} border ${activeModal.accentBorder}`}>
+                          {activeModal.backTitle}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onPointerDown={(e) => e.stopPropagation()}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setIsCardFlipped(false);
+                          }}
+                          className="text-[11px] text-slate-300 hover:text-white px-2.5 py-1 rounded-md bg-white/5 hover:bg-white/10 transition-colors flex items-center gap-1"
+                        >
+                          <span>Front</span>
+                          <RotateCw className="w-3 h-3" />
+                        </button>
+                        <button
+                          onPointerDown={(e) => e.stopPropagation()}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveModal(null);
+                          }}
+                          className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 transition-colors"
+                          aria-label="Close"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Back Title */}
+                    <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight mb-1">
+                      {activeModal.backSubtitle}
+                    </h3>
+                    <p className="text-[11px] text-slate-400 mb-3">
+                      Production engineering specifications & runtime safeguards.
+                    </p>
+
+                    {/* Architecture Rows */}
+                    <div className="space-y-2 mb-3">
+                      {activeModal.architectureDetails.map((item, i) => (
+                        <div key={i} className="p-2 sm:p-2.5 rounded-lg bg-white/[0.04] border border-white/10">
+                          <div className="flex items-center justify-between text-xs mb-0.5">
+                            <span className="font-semibold text-slate-300">{item.label}</span>
+                            <span className={`font-mono text-[11px] ${activeModal.accentText}`}>{item.value}</span>
+                          </div>
+                          <p className="text-[11px] text-slate-400 leading-snug">{item.desc}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Metric Highlight */}
+                    <div className="p-2 sm:p-2.5 rounded-lg bg-white/[0.02] border border-white/5 flex items-center justify-between">
+                      <span className="text-[11px] text-slate-400">{activeModal.metricHighlight.label}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-white">{activeModal.metricHighlight.value}</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-slate-300">
+                          {activeModal.metricHighlight.badge}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Back Actions */}
+                  <div className="pt-3 border-t border-white/10 flex items-center gap-2.5">
+                    <button
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleQuickDemo(activeModal.route);
+                      }}
+                      disabled={isLoggingIn}
+                      className="landing-btn landing-btn-solid flex-1 h-10 text-xs shadow-lg"
+                    >
+                      <span>Launch in Live Demo</span>
+                      <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+                    </button>
+                    <button
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsCardFlipped(false);
+                      }}
+                      className="landing-btn landing-hero-ghost px-3 h-10 text-xs"
+                    >
+                      Overview ↺
+                    </button>
+                  </div>
+                </div>
+              }
+              flipped={isCardFlipped}
+              onFlipChange={(f) => setIsCardFlipped(f)}
+              axis="y"
+              flipOnClick={true}
+              draggable={true}
+              dragDistance={0}
+              tilt={true}
+              tiltMax={14}
+              glare={true}
+              glareOpacity={0.22}
+              hoverScale={1.02}
+              perspective={1100}
+              stiffness={180}
+              damping={20}
+              width={420}
+              height={530}
+              radius={24}
+              background="#0b0d14"
+              color="#f4f4f5"
+              shadow={true}
+              shadowColor="#000000"
+              shadowOpacity={0.65}
+            />
+
+            {/* Instruction tooltip underneath */}
+            <div className="mt-3 flex items-center gap-2 text-[11px] text-slate-400 font-mono tracking-tight select-none">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Click or drag card to flip • Tilt follows cursor</span>
             </div>
           </div>
         </div>

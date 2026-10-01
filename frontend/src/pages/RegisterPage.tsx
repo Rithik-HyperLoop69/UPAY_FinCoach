@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Lock, Mail, User as UserIcon, Briefcase, ArrowRight } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
+import { usePageTransition } from '../context/PageTransitionContext';
 
 export const RegisterPage: React.FC = () => {
   const [fullName, setFullName] = useState('');
@@ -15,6 +16,7 @@ export const RegisterPage: React.FC = () => {
 
   const { register } = useAuth();
   const navigate = useNavigate();
+  const { navigateWithShutter } = usePageTransition();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,11 +45,16 @@ export const RegisterPage: React.FC = () => {
 
       <div className="relative z-10 w-full max-w-md">
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 mb-3">
+          <button
+            type="button"
+            onClick={() => navigateWithShutter('/')}
+            className="inline-flex items-center gap-2 mb-3 cursor-pointer focus:outline-none"
+            aria-label="Return to home"
+          >
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-700 via-blue-600 to-teal-400 flex items-center justify-center text-white font-extrabold text-2xl shadow-xl shadow-blue-600/30">
               ৳
             </div>
-          </Link>
+          </button>
           <h2 className="text-2xl font-extrabold text-white tracking-tight">Create FinCoach Account</h2>
           <p className="text-xs text-slate-400 mt-1">
             Personalized cash-flow forecasting & AI health insights
@@ -147,9 +154,13 @@ export const RegisterPage: React.FC = () => {
 
         <p className="text-center text-xs text-slate-400 mt-6">
           Already have an account?{' '}
-          <Link to="/login" className="text-blue-400 hover:underline font-semibold">
+          <button
+            type="button"
+            onClick={() => navigateWithShutter('/login')}
+            className="text-blue-400 hover:underline font-semibold bg-transparent border-none p-0 inline cursor-pointer"
+          >
             Sign In
-          </Link>
+          </button>
         </p>
       </div>
     </div>

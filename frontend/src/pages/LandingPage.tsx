@@ -5,6 +5,7 @@ import { X, ArrowRight, Sparkles, TrendingUp, ShieldCheck, LineChart, Cpu, Rotat
 import GlowCursor from '../components/ui/GlowCursor';
 import Dock, { DockItemData } from '../components/ui/Dock';
 import FlipCard from '../components/ui/FlipCard';
+import { usePageTransition } from '../context/PageTransitionContext';
 import './LandingPage.css';
 
 interface FeatureModalInfo {
@@ -28,6 +29,7 @@ interface FeatureModalInfo {
 
 export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
+  const { navigateWithShutter } = usePageTransition();
   const { login } = useAuth();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -41,7 +43,7 @@ export const LandingPage: React.FC = () => {
       await login('demo@upay.com', 'Password123!');
       navigate(targetRoute);
     } catch {
-      navigate('/login');
+      navigateWithShutter('/login');
     } finally {
       setIsLoggingIn(false);
     }
@@ -425,13 +427,14 @@ export const LandingPage: React.FC = () => {
               >
                 {isLoggingIn ? 'Launching Live Demo...' : 'Explore Live Demo (1-Click)'}
               </button>
-              <Link
-                to="/login"
+              <button
+                type="button"
+                onClick={() => navigateWithShutter('/login')}
                 className="landing-btn landing-hero-btn landing-hero-ghost appear appear--side"
                 style={{ ['--d' as any]: '1.10s' }}
               >
                 Sign In / Register
-              </Link>
+              </button>
             </div>
           </div>
         </main>

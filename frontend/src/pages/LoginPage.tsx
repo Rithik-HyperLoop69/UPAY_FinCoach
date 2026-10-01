@@ -7,6 +7,7 @@ import BorderGlow from '../components/ui/BorderGlow';
 import Ferrofluid from '../components/ui/Ferrofluid';
 import TiltedCard from '../components/ui/TiltedCard';
 import { useAuth } from '../context/AuthContext';
+import { usePageTransition } from '../context/PageTransitionContext';
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -16,6 +17,7 @@ export const LoginPage: React.FC = () => {
 
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { navigateWithShutter } = usePageTransition();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,11 +68,16 @@ export const LoginPage: React.FC = () => {
       <div className="relative z-10 w-full max-w-md">
         {/* Brand */}
         <div className="text-center mb-6">
-          <Link to="/" className="inline-flex items-center gap-2 mb-2">
+          <button
+            type="button"
+            onClick={() => navigateWithShutter('/')}
+            className="inline-flex items-center gap-2 mb-2 cursor-pointer focus:outline-none"
+            aria-label="Return to home"
+          >
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-700 via-blue-600 to-teal-400 flex items-center justify-center text-white font-extrabold text-2xl shadow-xl shadow-blue-600/30">
               ৳
             </div>
-          </Link>
+          </button>
           <div className="w-full max-w-[340px] mx-auto py-1">
             <StrokeText
               text="Welcome Back"
@@ -189,9 +196,13 @@ export const LoginPage: React.FC = () => {
 
         <p className="text-center text-xs text-slate-400 mt-6">
           Don't have an account yet?{' '}
-          <Link to="/register" className="text-blue-400 hover:underline font-semibold">
+          <button
+            type="button"
+            onClick={() => navigateWithShutter('/register')}
+            className="text-blue-400 hover:underline font-semibold bg-transparent border-none p-0 inline cursor-pointer"
+          >
             Create Free Account
-          </Link>
+          </button>
         </p>
       </div>
     </div>

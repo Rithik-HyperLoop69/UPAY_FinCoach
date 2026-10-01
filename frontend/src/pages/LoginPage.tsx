@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Lock, Mail, ArrowRight, ShieldCheck } from 'lucide-react';
 import { Button } from '../components/ui/Button';
+import StrokeText from '../components/ui/StrokeText';
 import { useAuth } from '../context/AuthContext';
 
 export const LoginPage: React.FC = () => {
@@ -17,7 +18,7 @@ export const LoginPage: React.FC = () => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
-
+ 
     try {
       await login(email, password);
       navigate('/dashboard');
@@ -40,13 +41,30 @@ export const LoginPage: React.FC = () => {
 
       <div className="relative z-10 w-full max-w-md">
         {/* Brand */}
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 mb-3">
+        <div className="text-center mb-6">
+          <Link to="/" className="inline-flex items-center gap-2 mb-2">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-700 via-blue-600 to-teal-400 flex items-center justify-center text-white font-extrabold text-2xl shadow-xl shadow-blue-600/30">
               ৳
             </div>
           </Link>
-          <h2 className="text-2xl font-extrabold text-white tracking-tight">Welcome Back</h2>
+          <div className="w-full max-w-[340px] mx-auto py-1">
+            <StrokeText
+              text="Welcome Back"
+              strokeColor="#38bdf8"
+              fillColor="#ffffff"
+              strokeWidth={2}
+              drawDuration={1.3}
+              fillDelay={0.15}
+              stagger={0.05}
+              ease="power2.out"
+              trigger="mount"
+              fillMode="wipe"
+              fontSize={58}
+              fontWeight={900}
+              letterSpacing={-2}
+              className="w-full block"
+            />
+          </div>
           <p className="text-xs text-slate-400 mt-1">
             Access your upay AI Financial Health Coach & Cash-Flow Forecaster
           </p>

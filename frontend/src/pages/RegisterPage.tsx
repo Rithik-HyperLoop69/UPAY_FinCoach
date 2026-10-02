@@ -6,6 +6,8 @@ import { useAuth } from '../context/AuthContext';
 import { usePageTransition } from '../context/PageTransitionContext';
 import Dither from '../components/ui/Dither';
 import TechText from '../components/ui/TechText';
+import BorderGlow from '../components/ui/BorderGlow';
+import TiltedCard from '../components/ui/TiltedCard';
 
 export const RegisterPage: React.FC = () => {
   const [fullName, setFullName] = useState('');
@@ -129,107 +131,134 @@ export const RegisterPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="rounded-3xl glass-panel bg-slate-900/90 border border-slate-800 p-7 sm:p-8 shadow-2xl">
-          {error && (
-            <div className="mb-5 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-medium">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-3.5">
-            <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">Full Name *</label>
-              <div className="relative">
-                <UserIcon className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  placeholder="e.g. Tanvir Ahmed"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-slate-950/80 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 text-sm"
-                  required
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">Email Address *</label>
-              <div className="relative">
-                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="email"
-                  placeholder="name@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-slate-950/80 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 text-sm"
-                  required
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">Password *</label>
-              <div className="relative">
-                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="password"
-                  placeholder="Minimum 6 characters"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-slate-950/80 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 text-sm"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 pt-1">
-              <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                  Est. Monthly Income (৳)
-                </label>
-                <input
-                  type="number"
-                  placeholder="e.g. 50000"
-                  value={monthlyIncome}
-                  onChange={(e) => setMonthlyIncome(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-white text-sm font-mono focus:outline-none focus:border-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1.5">Occupation</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Engineer"
-                  value={occupation}
-                  onChange={(e) => setOccupation(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:border-blue-500"
-                />
-              </div>
-            </div>
-
-            <ShinyButton
-              type="submit"
-              disabled={isLoading}
-              className="w-full mt-4 !py-3.5 !text-sm sm:!text-base font-semibold shadow-xl shadow-blue-900/30"
-            >
-              {isLoading ? (
-                <>
-                  <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                  <span>Completing Registration...</span>
-                </>
-              ) : (
-                <>
-                  <span>Complete Registration</span>
-                  <ArrowRight className="w-4 h-4 text-cyan-400 group-hover:translate-x-0.5 transition-transform" />
-                </>
+        {/* Registration Box with 3D Interactive Spring Tilt & BorderGlow */}
+        <TiltedCard
+          containerWidth="100%"
+          containerHeight="auto"
+          imageWidth="100%"
+          imageHeight="auto"
+          rotateAmplitude={10}
+          scaleOnHover={1.015}
+          showMobileWarning={false}
+          showTooltip={false}
+          className="w-full"
+        >
+          <BorderGlow
+            edgeSensitivity={30}
+            glowColor="195 90 65"
+            backgroundColor="#0b0f19"
+            borderRadius={24}
+            glowRadius={36}
+            glowIntensity={1.2}
+            coneSpread={28}
+            animated={true}
+            colors={['#38bdf8', '#818cf8', '#2dd4bf']}
+            fillOpacity={0.35}
+            className="w-full shadow-2xl"
+          >
+            <div className="p-7 sm:p-8">
+              {error && (
+                <div className="mb-5 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-medium">
+                  {error}
+                </div>
               )}
-            </ShinyButton>
-          </form>
-        </div>
+
+              <form onSubmit={handleSubmit} className="space-y-3.5">
+                <div>
+                  <label className="block text-xs font-medium text-slate-300 mb-1.5">Full Name *</label>
+                  <div className="relative">
+                    <UserIcon className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      placeholder="e.g. Tanvir Ahmed"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 text-sm"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-slate-300 mb-1.5">Email Address *</label>
+                  <div className="relative">
+                    <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="email"
+                      placeholder="name@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 text-sm"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-slate-300 mb-1.5">Password *</label>
+                  <div className="relative">
+                    <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="password"
+                      placeholder="Minimum 6 characters"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 text-sm"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 pt-1">
+                  <div>
+                    <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                      Est. Monthly Income (৳)
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 50000"
+                      value={monthlyIncome}
+                      onChange={(e) => setMonthlyIncome(e.target.value)}
+                      className="w-full px-3 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-white text-sm font-mono focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-slate-300 mb-1.5">Occupation</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Engineer"
+                      value={occupation}
+                      onChange={(e) => setOccupation(e.target.value)}
+                      className="w-full px-3 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+                </div>
+
+                <ShinyButton
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full mt-4 !py-3.5 !text-sm sm:!text-base font-semibold shadow-xl shadow-blue-900/30"
+                >
+                  {isLoading ? (
+                    <>
+                      <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      <span>Completing Registration...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Complete Registration</span>
+                      <ArrowRight className="w-4 h-4 text-cyan-400 group-hover:translate-x-0.5 transition-transform" />
+                    </>
+                  )}
+                </ShinyButton>
+              </form>
+            </div>
+          </BorderGlow>
+        </TiltedCard>
 
         <p className="text-center text-xs sm:text-sm text-slate-400 mt-6">
           Already have an account?{' '}

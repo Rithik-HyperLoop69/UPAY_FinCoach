@@ -5,6 +5,7 @@ import { Button } from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
 import { usePageTransition } from '../context/PageTransitionContext';
 import Dither from '../components/ui/Dither';
+import TechText from '../components/ui/TechText';
 
 export const RegisterPage: React.FC = () => {
   const [fullName, setFullName] = useState('');
@@ -93,25 +94,42 @@ export const RegisterPage: React.FC = () => {
         </button>
       </div>
 
-      <div className="relative z-10 w-full max-w-md">
-        <div className="text-center mb-8">
+      <div className="relative z-10 w-full max-w-[460px]">
+        <div className="text-center mb-6">
           <button
             type="button"
             onClick={() => navigateWithShutter('/')}
-            className="inline-flex items-center gap-2 mb-3 cursor-pointer focus:outline-none"
+            className="inline-flex items-center gap-2 mb-2 cursor-pointer focus:outline-none active:scale-95 transition-transform"
             aria-label="Return to home"
           >
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-700 via-blue-600 to-teal-400 flex items-center justify-center text-white font-extrabold text-2xl shadow-xl shadow-blue-600/30">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-700 via-blue-600 to-teal-400 flex items-center justify-center text-white font-extrabold text-xl shadow-xl shadow-blue-600/30">
               ৳
             </div>
           </button>
-          <h2 className="text-2xl font-extrabold text-white tracking-tight">Create FinCoach Account</h2>
-          <p className="text-xs text-slate-400 mt-1">
+
+          {/* Interactive TechText Component from React Bits */}
+          <div className="w-full h-[52px] sm:h-[60px] mx-auto my-1">
+            <TechText
+              text="Create a Fincoach Account"
+              fontWeight={700}
+              fontSize={54}
+              letterSpacing={-0.03}
+              reveal="letter"
+              dashLength={4}
+              dashGap={2}
+              specks={15}
+              accentColor="#38bdf8"
+              color="#ffffff"
+              speed={1.2}
+            />
+          </div>
+
+          <p className="text-xs sm:text-sm text-slate-400 mt-1.5 font-normal tracking-wide">
             Personalized cash-flow forecasting & AI health insights
           </p>
         </div>
 
-        <div className="rounded-3xl glass-panel bg-slate-900/90 border border-slate-800 p-8 shadow-2xl">
+        <div className="rounded-3xl glass-panel bg-slate-900/90 border border-slate-800 p-7 sm:p-8 shadow-2xl">
           {error && (
             <div className="mb-5 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-medium">
               {error}
@@ -174,7 +192,7 @@ export const RegisterPage: React.FC = () => {
                   placeholder="e.g. 50000"
                   value={monthlyIncome}
                   onChange={(e) => setMonthlyIncome(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-blue-500"
+                  className="w-full px-3 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-white text-sm font-mono focus:outline-none focus:border-blue-500"
                 />
               </div>
 
@@ -185,7 +203,7 @@ export const RegisterPage: React.FC = () => {
                   placeholder="e.g. Engineer"
                   value={occupation}
                   onChange={(e) => setOccupation(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-xl text-white text-xs focus:outline-none focus:border-blue-500"
+                  className="w-full px-3 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:border-blue-500"
                 />
               </div>
             </div>
@@ -193,7 +211,7 @@ export const RegisterPage: React.FC = () => {
             <Button
               type="submit"
               variant="upay"
-              className="w-full mt-3"
+              className="w-full mt-4 py-3 text-sm font-semibold shadow-lg shadow-blue-600/30"
               isLoading={isLoading}
               rightIcon={<ArrowRight className="w-4 h-4" />}
             >
@@ -202,12 +220,12 @@ export const RegisterPage: React.FC = () => {
           </form>
         </div>
 
-        <p className="text-center text-xs text-slate-400 mt-6">
+        <p className="text-center text-xs sm:text-sm text-slate-400 mt-6">
           Already have an account?{' '}
           <button
             type="button"
             onClick={() => navigateWithShutter('/login')}
-            className="text-blue-400 hover:underline font-semibold bg-transparent border-none p-0 inline cursor-pointer"
+            className="text-blue-400 hover:text-blue-300 hover:underline font-semibold bg-transparent border-none p-0 inline cursor-pointer transition-colors"
           >
             Sign In
           </button>

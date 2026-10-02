@@ -144,6 +144,7 @@ export interface GlowCursorProps {
   blendMode?: 'normal' | 'screen' | 'plus-lighter';
   maxDevicePixelRatio?: number;
   enabled?: boolean;
+  fixed?: boolean;
   children?: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
@@ -170,6 +171,7 @@ export const GlowCursor: React.FC<GlowCursorProps> = ({
   blendMode = 'screen',
   maxDevicePixelRatio = 1.5,
   enabled = true,
+  fixed = false,
   children,
   className = '',
   style,
@@ -198,7 +200,8 @@ export const GlowCursor: React.FC<GlowCursorProps> = ({
     fadeDuration,
     maxDevicePixelRatio,
     blendMode,
-    enabled
+    enabled,
+    fixed
   };
 
   useEffect(() => {
@@ -259,8 +262,8 @@ export const GlowCursor: React.FC<GlowCursorProps> = ({
     let destroyed = false;
 
     const resize = () => {
-      width = Math.max(container.clientWidth, 1);
-      height = Math.max(container.clientHeight, 1);
+      width = fixed ? window.innerWidth : Math.max(container.clientWidth, 1);
+      height = fixed ? window.innerHeight : Math.max(container.clientHeight, 1);
       renderer.setSize(width, height);
       program.uniforms.uResolution.value = [width, height];
     };
@@ -279,9 +282,16 @@ export const GlowCursor: React.FC<GlowCursorProps> = ({
     };
 
     const updatePointer = (event: PointerEvent) => {
-      const rect = container.getBoundingClientRect();
-      const x = clamp(event.clientX - rect.left, 0, rect.width);
-      const y = clamp(rect.height - (event.clientY - rect.top), 0, rect.height);
+      let x: number;
+      let y: number;
+      if (fixed) {
+        x = clamp(event.clientX, 0, window.innerWidth);
+        y = clamp(window.innerHeight - event.clientY, 0, window.innerHeight);
+      } else {
+        const rect = container.getBoundingClientRect();
+        x = clamp(event.clientX - rect.left, 0, rect.width);
+        y = clamp(rect.height - (event.clientY - rect.top), 0, rect.height);
+      }
       if (!initialized) initializeTrail(x, y);
       target.x = x;
       target.y = y;
@@ -348,9 +358,18 @@ export const GlowCursor: React.FC<GlowCursorProps> = ({
 
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(container);
-    container.addEventListener('pointermove', updatePointer);
-    container.addEventListener('pointerenter', updatePointer);
-    container.addEventListener('pointerleave', onPointerLeave);
+
+    if (fixed) {
+      window.addEventListener('pointermove', updatePointer, { passive: true });
+      window.addEventListener('pointerenter', updatePointer, { passive: true });
+      document.addEventListener('mouseleave', onPointerLeave);
+      window.addEventListener('resize', resize);
+    } else {
+      container.addEventListener('pointermove', updatePointer);
+      container.addEventListener('pointerenter', updatePointer);
+      container.addEventListener('pointerleave', onPointerLeave);
+    }
+
     resize();
     raf = requestAnimationFrame(render);
 
@@ -358,17 +377,37 @@ export const GlowCursor: React.FC<GlowCursorProps> = ({
       destroyed = true;
       cancelAnimationFrame(raf);
       resizeObserver.disconnect();
-      container.removeEventListener('pointermove', updatePointer);
-      container.removeEventListener('pointerenter', updatePointer);
-      container.removeEventListener('pointerleave', onPointerLeave);
+      if (fixed) {
+        window.removeEventListener('pointermove', updatePointer);
+        window.removeEventListener('pointerenter', updatePointer);
+        document.removeEventListener('mouseleave', onPointerLeave);
+        window.removeEventListener('resize', resize);
+      } else {
+        container.removeEventListener('pointermove', updatePointer);
+        container.removeEventListener('pointerenter', updatePointer);
+        container.removeEventListener('pointerleave', onPointerLeave);
+      }
       mesh.geometry.remove();
       program.remove();
     };
-  }, [maxDevicePixelRatio]);
+  }, [maxDevicePixelRatio, fixed]);
 
   return (
-    <div ref={containerRef} className={`glow-cursor${className ? ` ${className}` : ''}`} style={style} {...rest}>
-      <canvas ref={canvasRef} className="glow-cursor__canvas" style={{ mixBlendMode: blendMode }} aria-hidden="true" />
+    <div
+      ref={containerRef}
+      className={`glow-cursor${fixed ? ' glow-cursor--fixed' : ''}${className ? ` ${className}` : ''}`}
+      style={style}
+      {...rest}
+    >
+      <canvas
+        ref={canvasRef}
+        className="glow-cursor__canvas"
+        style={{
+          mixBlendMode: blendMode,
+          ...(fixed ? { position: 'fixed', inset: 0, width: '100vw', height: '100vh', zIndex: 9999, pointerEvents: 'none' } : {})
+        }}
+        aria-hidden="true"
+      />
       {children && <div className="glow-cursor__content">{children}</div>}
     </div>
   );

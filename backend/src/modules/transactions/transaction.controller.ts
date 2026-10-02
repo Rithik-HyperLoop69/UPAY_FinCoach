@@ -63,4 +63,26 @@ export class TransactionController {
       next(error);
     }
   };
+
+  syncUpayWallet = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (!req.user) throw new UnauthorizedError();
+      const result = await this.service.syncUpayWallet(req.user.userId);
+      return sendSuccess(res, result, result.message);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  parseUpaySms = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (!req.user) throw new UnauthorizedError();
+      const { smsText, autoSave } = req.body;
+      const result = await this.service.parseAndIngestUpaySms(req.user.userId, smsText, autoSave);
+      return sendSuccess(res, result, result.message);
+    } catch (error) {
+      next(error);
+    }
+  };
 }
+

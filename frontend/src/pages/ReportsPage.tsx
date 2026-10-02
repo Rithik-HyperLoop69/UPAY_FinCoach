@@ -87,7 +87,7 @@ export const ReportsPage: React.FC = () => {
       </div>
 
       {/* Printable Report Document */}
-      <div className="rounded-3xl glass-panel bg-slate-900/90 border border-slate-800 p-8 sm:p-10 space-y-8 shadow-2xl print:border-none print:shadow-none print:p-0">
+      <div className="rounded-3xl glass-panel bg-slate-900/80 backdrop-blur-xl border border-slate-800/80 p-8 sm:p-10 space-y-8 shadow-2xl print:border-none print:shadow-none print:p-0 print:bg-white">
         {/* Document Header */}
         <div className="flex items-start justify-between border-b border-slate-800 pb-6">
           <div className="flex items-center gap-3">

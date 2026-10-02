@@ -62,3 +62,45 @@
 .transition-texture-overlay.active {
   opacity: 1;
 }
+
+/* Right-side scope: covers the full part of that right side (from sidebar edge to viewport edge) */
+.transition-svg.scope-right-side {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100vw;
+  height: 100vh;
+  transform: none;
+  pointer-events: none;
+  z-index: 50;
+  overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  .transition-svg.scope-right-side {
+    left: 16rem; /* 256px: exact sidebar boundary */
+    width: calc(100vw - 16rem);
+  }
+}
+
+.transition-svg.scope-right-side.is-active {
+  pointer-events: all;
+}
+
+.transition-texture-overlay.scope-right-side {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+}
+
+@media (min-width: 1024px) {
+  .transition-texture-overlay.scope-right-side {
+    left: 16rem;
+  }
+}
+

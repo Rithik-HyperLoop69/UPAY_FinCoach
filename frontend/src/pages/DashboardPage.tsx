@@ -13,11 +13,15 @@ import {
   ArrowUpRight,
   ArrowDownLeft,
   Calendar,
+  Zap,
+  CheckCircle2,
 } from 'lucide-react';
 import { Card, CardHeader } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
+import TiltedCard from '../components/ui/TiltedCard';
+import BorderGlow from '../components/ui/BorderGlow';
 import { CashFlowChart } from '../components/charts/CashFlowChart';
 import { SpendingPieChart } from '../components/charts/SpendingPieChart';
 import { api } from '../api/client';
@@ -43,6 +47,23 @@ export const DashboardPage: React.FC = () => {
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
   const [horizon, setHorizon] = useState<'7D' | '30D' | '90D'>('30D');
   const [isLoading, setIsLoading] = useState(true);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncNotice, setSyncNotice] = useState<string | null>(null);
+
+  const handleSyncWallet = async () => {
+    setIsSyncing(true);
+    setSyncNotice(null);
+    try {
+      const res = await api.post<{ syncedCount: number; message: string }>('/transactions/upay/sync');
+      setSyncNotice(res.message);
+      await loadDashboardData();
+      setTimeout(() => setSyncNotice(null), 5000);
+    } catch {
+      setSyncNotice('Failed to sync wallet data.');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   const loadDashboardData = async () => {
     try {
@@ -92,63 +113,130 @@ export const DashboardPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Welcome Banner */}
-      <div className="relative overflow-hidden rounded-3xl p-6 lg:p-8 bg-gradient-to-r from-blue-900/40 via-slate-900 to-teal-950/30 border border-blue-500/20 shadow-xl">
-        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1.5">
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                Personalized Financial Intelligence
-              </span>
-              {user?.upayConnected && (
-                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-teal-400" />
-                  upay Connected
-                </span>
-              )}
-            </div>
-            <h2 className="text-2xl lg:text-3xl font-extrabold text-white tracking-tight">
-              Good day, {user?.fullName || 'Tanvir'}!
-            </h2>
-            <p className="text-sm text-slate-300 mt-1 max-w-xl">
-              Your cash-flow outlook is looking{' '}
-              <span className="text-emerald-400 font-semibold">stable with a projected surplus</span>.
-              Review your upcoming recurring obligations and AI coach guidance below.
-            </p>
-          </div>
-
-          <Button
-            variant="upay"
-            size="md"
-            onClick={() => navigate('/coach')}
-            leftIcon={<Sparkles className="w-4 h-4 text-teal-300" />}
-            rightIcon={<ArrowRight className="w-4 h-4" />}
+        {/* Welcome Banner */}
+        <TiltedCard
+          containerWidth="100%"
+          containerHeight="auto"
+          imageWidth="100%"
+          imageHeight="auto"
+          rotateAmplitude={4}
+          scaleOnHover={1.012}
+          showMobileWarning={false}
+          showTooltip={false}
+          className="w-full"
+        >
+          <BorderGlow
+            edgeSensitivity={30}
+            glowColor="195 90 65"
+            backgroundColor="#0b0f19"
+            borderRadius={24}
+            glowRadius={36}
+            glowIntensity={1.2}
+            coneSpread={28}
+            animated={true}
+            colors={['#38bdf8', '#818cf8', '#2dd4bf']}
+            fillOpacity={0.35}
+            className="w-full shadow-2xl"
           >
-            Consult AI Coach
-          </Button>
-        </div>
-      </div>
+            <div className="p-6 lg:p-8">
+              <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                      Personalized Financial Intelligence
+                    </span>
+                    {user?.upayConnected && (
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30 flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-teal-400" />
+                        upay Connected
+                      </span>
+                    )}
+                  </div>
+                  <h2 className="text-2xl lg:text-3xl font-extrabold text-white tracking-tight">
+                    Good day, {user?.fullName || 'Tanvir'}!
+                  </h2>
+                  <p className="text-sm text-slate-300 mt-1 max-w-xl">
+                    Your cash-flow outlook is looking{' '}
+                    <span className="text-emerald-400 font-semibold">stable with a projected surplus</span>.
+                    Review your upcoming recurring obligations and AI coach guidance below.
+                  </p>
+                </div>
 
-      {/* Critical Risks / Active Alerts Banner */}
-      {alerts.length > 0 && (
-        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-start justify-between gap-3 text-xs">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-            <div>
-              <p className="font-bold text-amber-200">{alerts[0].title}</p>
-              <p className="text-slate-300 mt-0.5 leading-relaxed">{alerts[0].message}</p>
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <Button
+                    variant="outline"
+                    size="md"
+                    onClick={handleSyncWallet}
+                    isLoading={isSyncing}
+                    leftIcon={<Zap className="w-4 h-4 text-teal-400" />}
+                    className="border-teal-500/40 text-teal-300 hover:bg-teal-950/40 cursor-pointer"
+                  >
+                    Sync upay
+                  </Button>
+
+                  <Button
+                    variant="upay"
+                    size="md"
+                    onClick={() => navigate('/coach')}
+                    leftIcon={<Sparkles className="w-4 h-4 text-teal-300" />}
+                    rightIcon={<ArrowRight className="w-4 h-4" />}
+                  >
+                    Consult AI Coach
+                  </Button>
+                </div>
+              </div>
             </div>
+          </BorderGlow>
+        </TiltedCard>
+
+        {/* Sync Notification Banner */}
+        {syncNotice && (
+          <div className="p-3.5 rounded-2xl bg-teal-500/10 border border-teal-500/30 text-teal-200 text-xs flex items-center justify-between shadow-lg animate-fadeIn">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0" />
+              <span>{syncNotice}</span>
+            </div>
+            <button
+              onClick={() => setSyncNotice(null)}
+              className="text-[11px] text-teal-400 hover:text-white px-2 py-0.5 rounded cursor-pointer"
+            >
+              Dismiss
+            </button>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate('/alerts')}
-            className="border-amber-500/40 text-amber-300 hover:bg-amber-950/40 shrink-0 text-xs py-1 px-3"
+        )}
+
+        {/* Critical Risks / Active Alerts Banner */}
+        {alerts.length > 0 && (
+          <TiltedCard
+            containerWidth="100%"
+            containerHeight="auto"
+            imageWidth="100%"
+            imageHeight="auto"
+            rotateAmplitude={4}
+            scaleOnHover={1.01}
+            showMobileWarning={false}
+            showTooltip={false}
+            className="w-full"
           >
-            Details
-          </Button>
-        </div>
-      )}
+            <div className="p-4 rounded-2xl liquid-glass liquid-glass-hover border-amber-500/35 bg-amber-500/[0.08] flex items-start justify-between gap-3 text-xs">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold text-amber-200">{alerts[0].title}</p>
+                  <p className="text-slate-300 mt-0.5 leading-relaxed">{alerts[0].message}</p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/alerts')}
+                className="border-amber-500/40 text-amber-300 hover:bg-amber-950/40 shrink-0 text-xs py-1 px-3"
+              >
+                Details
+              </Button>
+            </div>
+          </TiltedCard>
+        )}
 
       {/* Primary KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -416,7 +504,7 @@ export const DashboardPage: React.FC = () => {
         </Card>
 
         {/* AI Financial Coach Prompt Card (2 cols) */}
-        <Card className="lg:col-span-2 flex flex-col justify-between bg-gradient-to-br from-slate-900 via-slate-900/90 to-blue-950/30 border border-blue-500/20">
+        <Card className="lg:col-span-2 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2.5">
@@ -433,7 +521,7 @@ export const DashboardPage: React.FC = () => {
               <Badge variant="purple">AI Assistant Active</Badge>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800/80 mb-4">
+            <div className="p-4 rounded-2xl bg-white/[0.04] backdrop-blur-md border border-white/10 mb-4">
               <p className="text-xs font-semibold text-teal-300 mb-1">Coach Observation:</p>
               <p className="text-xs text-slate-300 leading-relaxed">
                 "Your projected 30-day surplus is <strong>৳{forecast?.expectedMonthlyNet.toLocaleString()}</strong>.
@@ -462,7 +550,7 @@ export const DashboardPage: React.FC = () => {
                   <button
                     key={promptText}
                     onClick={() => navigate('/coach', { state: { initialPrompt: promptText } })}
-                    className="px-3 py-1.5 rounded-xl bg-slate-800/70 hover:bg-blue-600/20 border border-slate-700/60 hover:border-blue-500/30 text-xs text-slate-300 hover:text-white transition-all text-left"
+                    className="px-3 py-1.5 rounded-xl bg-white/[0.05] hover:bg-blue-600/30 border border-white/10 hover:border-blue-400/40 text-xs text-slate-200 hover:text-white transition-all text-left"
                   >
                     "{promptText}"
                   </button>
@@ -510,7 +598,7 @@ export const DashboardPage: React.FC = () => {
           {goals.map((goal) => (
             <div
               key={goal.id}
-              className="p-4 rounded-2xl bg-slate-950/50 border border-slate-800/80 space-y-2.5"
+              className="p-4 rounded-2xl bg-white/[0.03] backdrop-blur-md border border-white/10 hover:border-white/20 transition-all space-y-2.5 shadow-sm"
             >
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-sm text-white">{goal.name}</span>

@@ -82,23 +82,76 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </NavLink>
         </div>
 
-        {/* Upay Wallet Card Mini */}
-        <div className="px-4 py-3 mx-4 my-3 rounded-2xl bg-gradient-to-br from-blue-900/40 via-slate-800/60 to-slate-900/80 border border-blue-500/20 shadow-inner">
-          <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
-            <span className="flex items-center gap-1">
-              <Wallet className="w-3.5 h-3.5 text-blue-400" />
-              upay Wallet
-            </span>
-            <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+        {/* Upay Wallet Card Mini with Auto-Glowing Glassmorphism Animation */}
+        <div
+          className="group isolate relative mx-4 my-3 overflow-hidden rounded-2xl p-[1px] shadow-[0_4px_24px_rgba(56,189,248,0.15)] transition-all duration-300 hover:shadow-[0_0_30px_6px_rgba(56,189,248,0.25)]"
+          style={
+            {
+              '--spread': '90deg',
+              '--shimmer-color': 'rgba(56, 189, 248, 0.75)',
+              '--speed': '4s',
+            } as React.CSSProperties
+          }
+        >
+          {/* Conic Rotating Shimmer Gradient */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div
+              className="absolute inset-[-200%] w-[400%] h-[400%]"
+              style={{ animation: 'rotate-gradient 4s linear infinite' }}
+            >
+              <div
+                className="absolute inset-0"
+                style={{
+                  background:
+                    'conic-gradient(from 225deg, transparent 0, var(--shimmer-color) var(--spread), transparent var(--spread))',
+                }}
+              />
+            </div>
           </div>
-          <p className="text-xs text-slate-300 font-mono">
-            {user?.upayWalletNumber || '01712345678'}
-          </p>
-          <div className="flex items-center justify-between mt-1 text-[11px]">
-            <span className="text-slate-400">Monthly Net</span>
-            <span className="font-semibold text-emerald-400">
-              {formatBDT(user?.profile?.monthlyIncome || 65000)}
-            </span>
+
+          {/* Rotating Border Beam Linear Gradient */}
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              width: '200%',
+              height: '200%',
+              background:
+                'linear-gradient(90deg, transparent, rgba(56,189,248,0.35), rgba(45,212,191,0.35), rgba(129,140,248,0.35), transparent)',
+              animation: 'borderBeamRotation 4s infinite linear',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+            }}
+          />
+
+          {/* Inner Dark Glass Panel Backdrop */}
+          <div
+            className="absolute rounded-[15px] pointer-events-none"
+            style={{
+              inset: '1px',
+              background: 'rgba(11, 15, 25, 0.88)',
+              backdropFilter: 'blur(12px)',
+            }}
+          />
+
+          {/* Content */}
+          <div className="relative z-10 px-4 py-3 rounded-[15px]">
+            <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+              <span className="flex items-center gap-1.5 font-medium text-slate-200">
+                <Wallet className="w-3.5 h-3.5 text-blue-400" />
+                upay Wallet
+              </span>
+              <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+            </div>
+            <p className="text-xs text-slate-300 font-mono tracking-wide">
+              {user?.upayWalletNumber || '01712345678'}
+            </p>
+            <div className="flex items-center justify-between mt-1 text-[11px]">
+              <span className="text-slate-400">Monthly Net</span>
+              <span className="font-semibold text-emerald-400">
+                {formatBDT(user?.profile?.monthlyIncome || 65000)}
+              </span>
+            </div>
           </div>
         </div>
 

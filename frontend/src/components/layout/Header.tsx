@@ -25,7 +25,7 @@ export const Header: React.FC<HeaderProps> = ({
   });
 
   return (
-    <header className="sticky top-0 z-30 h-18 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/80 px-4 lg:px-8 flex items-center justify-between">
+    <header className="sticky top-0 z-30 h-16 shrink-0 bg-slate-950/90 backdrop-blur-xl border-b border-slate-800/80 px-4 lg:px-8 flex items-center justify-between">
       <div className="flex items-center gap-3">
         <button
           onClick={onMenuToggle}

@@ -97,6 +97,7 @@ export interface BorderGlowProps {
   glowIntensity?: number;
   coneSpread?: number;
   animated?: boolean;
+  loop?: boolean;
   colors?: string[];
   fillOpacity?: number;
 }
@@ -112,10 +113,12 @@ const BorderGlow: React.FC<BorderGlowProps> = ({
   glowIntensity = 1.0,
   coneSpread = 25,
   animated = false,
+  loop = false,
   colors = ['#c084fc', '#f472b6', '#38bdf8'],
   fillOpacity = 0.5,
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
+  const isHovered = useRef(false);
 
   const getCenterOfElement = useCallback((el: HTMLElement) => {
     const { width, height } = el.getBoundingClientRect();
@@ -144,6 +147,14 @@ const BorderGlow: React.FC<BorderGlowProps> = ({
     return degrees;
   }, [getCenterOfElement]);
 
+  const handlePointerEnter = useCallback(() => {
+    isHovered.current = true;
+  }, []);
+
+  const handlePointerLeave = useCallback(() => {
+    isHovered.current = false;
+  }, []);
+
   const handlePointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     const card = cardRef.current;
     if (!card) return;
@@ -162,31 +173,62 @@ const BorderGlow: React.FC<BorderGlowProps> = ({
   useEffect(() => {
     if (!animated || !cardRef.current) return;
     const card = cardRef.current;
-    const angleStart = 110;
-    const angleEnd = 465;
-    card.classList.add('sweep-active');
-    card.style.setProperty('--cursor-angle', `${angleStart}deg`);
+    let isCancelled = false;
+    let cleans: Array<() => void> = [];
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
-    const c1 = animateValue({ duration: 500, onUpdate: v => card.style.setProperty('--edge-proximity', `${v}`) });
-    const c2 = animateValue({ ease: easeInCubic, duration: 1500, end: 50, onUpdate: v => {
-      card.style.setProperty('--cursor-angle', `${(angleEnd - angleStart) * (v / 100) + angleStart}deg`);
-    }});
-    const c3 = animateValue({ ease: easeOutCubic, delay: 1500, duration: 2250, start: 50, end: 100, onUpdate: v => {
-      card.style.setProperty('--cursor-angle', `${(angleEnd - angleStart) * (v / 100) + angleStart}deg`);
-    }});
-    const c4 = animateValue({ ease: easeInCubic, delay: 2500, duration: 1500, start: 100, end: 0,
-      onUpdate: v => card.style.setProperty('--edge-proximity', `${v}`),
-      onEnd: () => card.classList.remove('sweep-active'),
-    });
+    const startSweep = () => {
+      if (isCancelled || !card) return;
+      if (isHovered.current) {
+        if (loop) {
+          timeoutId = setTimeout(startSweep, 2000);
+        }
+        return;
+      }
+
+      const angleStart = 110;
+      const angleEnd = 465;
+      card.classList.add('sweep-active');
+      card.style.setProperty('--cursor-angle', `${angleStart}deg`);
+
+      const c1 = animateValue({ duration: 500, onUpdate: v => card.style.setProperty('--edge-proximity', `${v}`) });
+      const c2 = animateValue({ ease: easeInCubic, duration: 1500, end: 50, onUpdate: v => {
+        card.style.setProperty('--cursor-angle', `${(angleEnd - angleStart) * (v / 100) + angleStart}deg`);
+      }});
+      const c3 = animateValue({ ease: easeOutCubic, delay: 1500, duration: 2250, start: 50, end: 100, onUpdate: v => {
+        card.style.setProperty('--cursor-angle', `${(angleEnd - angleStart) * (v / 100) + angleStart}deg`);
+      }});
+      const c4 = animateValue({ ease: easeInCubic, delay: 2500, duration: 1500, start: 100, end: 0,
+        onUpdate: v => card.style.setProperty('--edge-proximity', `${v}`),
+        onEnd: () => {
+          card.classList.remove('sweep-active');
+          if (loop && !isCancelled) {
+            timeoutId = setTimeout(startSweep, 1800);
+          }
+        },
+      });
+
+      cleans = [c1, c2, c3, c4];
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          startSweep();
+        }
+      });
+    }, { threshold: 0.15 });
+
+    observer.observe(card);
 
     return () => {
-      c1();
-      c2();
-      c3();
-      c4();
+      isCancelled = true;
+      observer.disconnect();
+      if (timeoutId) clearTimeout(timeoutId);
+      cleans.forEach(c => c());
       card.classList.remove('sweep-active');
     };
-  }, [animated]);
+  }, [animated, loop]);
 
   const glowVars = buildGlowVars(glowColor, glowIntensity);
   const lightSurface = isLightColor(backgroundColor);
@@ -194,6 +236,8 @@ const BorderGlow: React.FC<BorderGlowProps> = ({
   return (
     <div
       ref={cardRef}
+      onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
       onPointerMove={handlePointerMove}
       className={`border-glow-card${lightSurface ? ' border-glow-card--light' : ''} ${className}`}
       style={{

@@ -10,10 +10,12 @@ export interface SvgStrokeTransitionHandle {
 export interface SvgStrokeTransitionProps {
   onTransitionStart?: () => void;
   onTransitionEnd?: () => void;
+  scope?: 'fullscreen' | 'right-side';
+  duration?: number;
 }
 
 export const SvgStrokeTransition = forwardRef<SvgStrokeTransitionHandle, SvgStrokeTransitionProps>(
-  ({ onTransitionStart, onTransitionEnd }, ref) => {
+  ({ onTransitionStart, onTransitionEnd, scope = 'fullscreen', duration = 0.8 }, ref) => {
     const containerRef = useRef<HTMLDivElement | null>(null);
     const svgRef = useRef<SVGSVGElement | null>(null);
     const path1Ref = useRef<SVGPathElement | null>(null);
@@ -119,7 +121,7 @@ export const SvgStrokeTransition = forwardRef<SvgStrokeTransitionHandle, SvgStro
                 {
                   strokeDashoffset: -length,
                   attr: { 'stroke-width': 200 },
-                  duration: 1,
+                  duration,
                   ease: 'power1.inOut',
                   onComplete: () => {
                     // Reset to the hidden +length start for the next transition
@@ -138,7 +140,7 @@ export const SvgStrokeTransition = forwardRef<SvgStrokeTransitionHandle, SvgStro
             {
               strokeDashoffset: 0,
               attr: { 'stroke-width': 700 },
-              duration: 1,
+              duration,
               ease: 'power1.inOut',
             },
             0
@@ -147,7 +149,7 @@ export const SvgStrokeTransition = forwardRef<SvgStrokeTransitionHandle, SvgStro
 
         return true;
       },
-      [onTransitionStart, onTransitionEnd]
+      [duration, onTransitionStart, onTransitionEnd]
     );
 
     useImperativeHandle(
@@ -162,11 +164,17 @@ export const SvgStrokeTransition = forwardRef<SvgStrokeTransitionHandle, SvgStro
     return (
       <>
         {/* Subtle Cyber Texture & Grain Layer */}
-        <div className={`transition-texture-overlay ${isActive ? 'active' : ''}`} />
+        <div
+          className={`transition-texture-overlay ${isActive ? 'active' : ''} ${
+            scope === 'right-side' ? 'scope-right-side' : ''
+          }`}
+        />
 
         <div
           ref={containerRef}
-          className={`transition-svg ${isActive ? 'is-active' : ''}`}
+          className={`transition-svg ${isActive ? 'is-active' : ''} ${
+            scope === 'right-side' ? 'scope-right-side' : ''
+          }`}
           aria-hidden="true"
         >
           <svg

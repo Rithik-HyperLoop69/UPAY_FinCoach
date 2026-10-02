@@ -30,3 +30,9 @@ export const queryTransactionsSchema = z.object({
   paymentMethod: z.string().optional(),
   isRecurring: z.string().optional().transform((v) => (v === 'true' ? true : v === 'false' ? false : undefined)),
 });
+
+export const parseUpaySmsSchema = z.object({
+  smsText: z.string().min(5, 'SMS text is required'),
+  autoSave: z.boolean().optional().default(false),
+});
+

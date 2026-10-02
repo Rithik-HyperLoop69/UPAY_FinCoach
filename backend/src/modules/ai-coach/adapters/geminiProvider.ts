@@ -32,9 +32,10 @@ export class GeminiProvider implements AIProvider {
     }
 
     try {
+      const modelName = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
       const genAI = new GoogleGenerativeAI(this.apiKey);
       const model = genAI.getGenerativeModel({
-        model: 'gemini-1.5-flash',
+        model: modelName,
         systemInstruction: SYSTEM_COACH_PROMPT,
       });
 
@@ -49,9 +50,9 @@ export class GeminiProvider implements AIProvider {
       let forecast = 'Forecast based on current historical trends.';
       let suggestion = 'Consider reviewing your discretionary budget.';
 
-      const observedMatch = text.match(/\*\*Observed:\*\*([\s\S]*?)(?=\*\*Forecast:\*\*|$)/i);
-      const forecastMatch = text.match(/\*\*Forecast:\*\*([\s\S]*?)(?=\*\*Suggestion:\*\*|$)/i);
-      const suggestionMatch = text.match(/\*\*Suggestion:\*\*([\s\S]*?)(?=$)/i);
+      const observedMatch = text.match(/(?:###|\*\*)\s*Observed:?\*?\*?([\s\S]*?)(?=(?:###|\*\*)\s*Forecast:?|$)/i);
+      const forecastMatch = text.match(/(?:###|\*\*)\s*Forecast:?\*?\*?([\s\S]*?)(?=(?:###|\*\*)\s*Suggestion:?|$)/i);
+      const suggestionMatch = text.match(/(?:###|\*\*)\s*Suggestion:?\*?\*?([\s\S]*?)(?=$)/i);
 
       if (observedMatch) observed = observedMatch[1].trim();
       if (forecastMatch) forecast = forecastMatch[1].trim();

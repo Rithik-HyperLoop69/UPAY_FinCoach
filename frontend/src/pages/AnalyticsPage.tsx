@@ -127,6 +127,7 @@ export const AnalyticsPage: React.FC = () => {
                 tickFormatter={(val) => `৳${Math.round(val / 1000)}k`}
               />
               <Tooltip
+                cursor={{ fill: 'rgba(255, 255, 255, 0.04)', radius: 6 }}
                 content={({ active, payload, label }) => {
                   if (active && payload && payload.length) {
                     return (

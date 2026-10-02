@@ -35,18 +35,73 @@
 
 .glass-panel {
   background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
 .glass-panel-hover {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 }
 .glass-panel-hover:hover {
-  border-color: rgba(59, 130, 246, 0.35);
-  box-shadow: 0 8px 30px rgba(0, 84, 166, 0.12);
-  transform: translateY(-1px);
+  border-color: rgba(56, 189, 248, 0.35);
+  box-shadow: 0 12px 36px rgba(2, 132, 199, 0.16);
+  transform: translateY(-2px);
+}
+
+/* Liquid Glass Format */
+.liquid-glass {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.025) 35%,
+    rgba(11, 15, 25, 0.65) 100%
+  );
+  backdrop-filter: blur(24px) saturate(170%);
+  -webkit-backdrop-filter: blur(24px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  border-left: 1px solid rgba(255, 255, 255, 0.18);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow:
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 0 24px 0 rgba(255, 255, 255, 0.015),
+    0 16px 36px -6px rgba(0, 0, 0, 0.45);
+  position: relative;
+  overflow: hidden;
+}
+
+.liquid-glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at 25% 0%,
+    rgba(255, 255, 255, 0.12) 0%,
+    transparent 65%
+  );
+  pointer-events: none;
+  opacity: 0.75;
+  transition: opacity 0.3s ease;
+}
+
+.liquid-glass-hover {
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.liquid-glass-hover:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+  border-top-color: rgba(255, 255, 255, 0.42);
+  box-shadow:
+    inset 0 1px 2px 0 rgba(255, 255, 255, 0.28),
+    inset 0 0 28px 0 rgba(255, 255, 255, 0.03),
+    0 24px 48px -10px rgba(0, 0, 0, 0.6);
+}
+
+.liquid-glass-hover:hover::before {
+  opacity: 1;
 }
 
 .gradient-fintech {
@@ -57,4 +112,34 @@
   background: linear-gradient(135deg, #60a5fa 0%, #38bdf8 50%, #34d399 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+/* Recharts Dark Theme Cursor Overrides */
+.recharts-default-tooltip {
+  background-color: rgba(15, 23, 42, 0.95) !important;
+  border-color: rgba(51, 65, 85, 0.8) !important;
+  border-radius: 12px !important;
+}
+
+.recharts-tooltip-cursor {
+  fill: rgba(255, 255, 255, 0.04) !important;
+  stroke: rgba(255, 255, 255, 0.12) !important;
+}
+
+@keyframes rotate-gradient {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes borderBeamRotation {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
 }

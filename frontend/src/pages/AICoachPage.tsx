@@ -35,7 +35,7 @@ export const AICoachPage: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: `Hello! I am your **upay FinCoach**. I analyze your transaction habits, forecast future liquidity, and help you grow your savings with disciplined guidance.
+      content: `Hello! I am your **UPAY FinCoach**. I analyze your transaction habits, forecast future liquidity, and help you grow your savings with disciplined guidance.
 
 How can I help you understand your money today?`,
     },

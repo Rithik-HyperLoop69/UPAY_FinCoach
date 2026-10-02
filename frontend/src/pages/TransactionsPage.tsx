@@ -9,12 +9,16 @@ import {
   Trash2,
   Plus,
   RefreshCw,
+  Zap,
+  MessageSquare,
+  CheckCircle2,
 } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { AddTransactionModal } from '../components/transactions/AddTransactionModal';
+import { UpaySmsModal } from '../components/transactions/UpaySmsModal';
 import { api } from '../api/client';
 import { Transaction } from '../types';
 import { formatBDT, formatDate } from '../utils/formatters';
@@ -26,6 +30,9 @@ export const TransactionsPage: React.FC = () => {
   const [search, setSearch] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
+  const [isSmsModalOpen, setIsSmsModalOpen] = useState<boolean>(false);
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
+  const [syncNotice, setSyncNotice] = useState<string | null>(null);
 
   const loadTransactions = async (page = 1) => {
     setIsLoading(true);
@@ -64,18 +71,53 @@ export const TransactionsPage: React.FC = () => {
     }
   };
 
+  const handleSyncUpay = async () => {
+    setIsSyncing(true);
+    setSyncNotice(null);
+    try {
+      const res = await api.post<{ syncedCount: number; message: string }>('/transactions/upay/sync');
+      setSyncNotice(res.message);
+      await loadTransactions(1);
+      window.dispatchEvent(new CustomEvent('transaction-created'));
+      setTimeout(() => setSyncNotice(null), 6000);
+    } catch (err: any) {
+      setSyncNotice('Failed to sync with upay wallet.');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-2">
       {/* Header & Controls */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-white tracking-tight">Transaction Ledger</h2>
           <p className="text-xs text-slate-400 mt-1">
-            Complete record of inflows, outflows, and upay wallet activities
+            Complete record of inflows, outflows, and auto-tracked upay activities
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSyncUpay}
+            isLoading={isSyncing}
+            leftIcon={<Zap className="w-3.5 h-3.5 text-teal-400" />}
+            className="border-teal-500/30 text-teal-300 hover:bg-teal-950/40"
+          >
+            Auto-Sync upay
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsSmsModalOpen(true)}
+            leftIcon={<MessageSquare className="w-3.5 h-3.5 text-sky-400" />}
+            className="border-sky-500/30 text-sky-300 hover:bg-sky-950/40"
+          >
+            Paste SMS
+          </Button>
           <Button
             variant="outline"
             size="sm"
@@ -94,6 +136,22 @@ export const TransactionsPage: React.FC = () => {
           </Button>
         </div>
       </div>
+
+      {/* Auto-Sync Notification Banner */}
+      {syncNotice && (
+        <div className="p-3.5 rounded-2xl bg-teal-500/10 border border-teal-500/30 text-teal-200 text-xs flex items-center justify-between shadow-lg animate-fadeIn">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0" />
+            <span>{syncNotice}</span>
+          </div>
+          <button
+            onClick={() => setSyncNotice(null)}
+            className="text-[11px] text-teal-400 hover:text-white px-2 py-0.5 rounded cursor-pointer"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {/* Filter & Search Bar */}
       <Card className="p-4">
@@ -278,6 +336,17 @@ export const TransactionsPage: React.FC = () => {
         onSuccess={() => {
           setIsAddModalOpen(false);
           loadTransactions(1);
+        }}
+      />
+
+      <UpaySmsModal
+        isOpen={isSmsModalOpen}
+        onClose={() => setIsSmsModalOpen(false)}
+        onSuccess={(msg) => {
+          setSyncNotice(msg);
+          loadTransactions(1);
+          window.dispatchEvent(new CustomEvent('transaction-created'));
+          setTimeout(() => setSyncNotice(null), 6000);
         }}
       />
     </div>

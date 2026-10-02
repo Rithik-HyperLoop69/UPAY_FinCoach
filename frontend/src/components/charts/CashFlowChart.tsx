@@ -92,7 +92,10 @@ export const CashFlowChart: React.FC<CashFlowChartProps> = ({
             axisLine={false}
             tickFormatter={(val) => `৳${val >= 1000 ? `${Math.round(val / 1000)}k` : val}`}
           />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip
+            content={<CustomTooltip />}
+            cursor={{ stroke: 'rgba(255, 255, 255, 0.15)', strokeWidth: 1, strokeDasharray: '3 3' }}
+          />
           <Area
             type="monotone"
             dataKey="balance"

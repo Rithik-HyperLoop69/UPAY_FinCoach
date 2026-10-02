@@ -13,6 +13,7 @@ const envSchema = z.object({
   JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
   CLIENT_URL: z.string().default('http://localhost:5173'),
   GEMINI_API_KEY: z.string().optional().default(''),
+  GEMINI_MODEL: z.string().default('gemini-2.5-flash'),
   AI_PROVIDER: z.enum(['gemini', 'fallback']).default('fallback'),
   DEFAULT_CURRENCY: z.string().default('BDT'),
   DEFAULT_LOCALE: z.string().default('en-BD'),

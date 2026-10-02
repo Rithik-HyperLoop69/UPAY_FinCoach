@@ -423,5 +423,16 @@ Distributed under the **MIT License**.
 *Disclaimer: upay FinCoach is a concept prototype designed for fintech research and technical innovation in Bangladesh. It is an independent research project and not an official banking service of United Commercial Bank (UCB) unless explicitly certified. All simulated transactions and financial analytics are generated for demonstration and educational purposes.*
 
 <div align="center">
-  <sub>Engineered with ❤️ for the future of digital finance in Bangladesh.</sub>
+  <br/>
+  <h3>
+    Say Hello & Stay Connected! <img src="https://raw.githubusercontent.com/MartinHeinz/MartinHeinz/master/wave.gif" width="32px" alt="Waving Hand" />
+  </h3>
+  <p>
+    <b>Built with ❤️ for the future of digital finance in Bangladesh 🇧🇩</b><br/>
+    <sub>Feel free to fork, contribute, or drop a ⭐ if you find this project inspiring!</sub>
+  </p>
+  <br/>
+
+  <!-- Animated Dynamic Waving Footer Banner -->
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:00D2FF,50:3a7bd5,100:0f172a&height=140&section=footer" width="100%" alt="Animated Waving Footer" />
 </div>

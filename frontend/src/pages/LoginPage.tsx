@@ -20,19 +20,19 @@ export const LoginPage: React.FC = () => {
   const { navigateWithShutter, navigateWithSquiggle } = usePageTransition();
 
   useEffect(() => {
-    // 1. Keyboard shortcut: Escape returns to landing page with shutter
+    // 1. Keyboard shortcut: Escape returns to landing page
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        navigateWithShutter('/');
+        navigate('/');
       }
     };
     window.addEventListener('keydown', handleKeyDown);
 
-    // 2. Intercept browser back button (popstate) to trigger shutter transition
+    // 2. Intercept browser back button (popstate)
     window.history.pushState({ page: 'login-guard' }, '', window.location.href);
 
     const handlePopState = () => {
-      navigateWithShutter('/');
+      navigate('/');
     };
 
     window.addEventListener('popstate', handlePopState);
@@ -41,7 +41,7 @@ export const LoginPage: React.FC = () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('popstate', handlePopState);
     };
-  }, [navigateWithShutter]);
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,7 +69,7 @@ export const LoginPage: React.FC = () => {
       <div className="fixed top-5 left-5 z-20">
         <button
           type="button"
-          onClick={() => navigateWithShutter('/')}
+          onClick={() => navigate('/')}
           className="group inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 hover:border-white/20 text-slate-300 hover:text-white text-xs font-semibold backdrop-blur-md transition-all duration-200 shadow-lg hover:shadow-cyan-500/10 active:scale-95 cursor-pointer"
           aria-label="Back to Landing Page"
         >
@@ -107,7 +107,7 @@ export const LoginPage: React.FC = () => {
         <div className="text-center mb-6">
           <button
             type="button"
-            onClick={() => navigateWithShutter('/')}
+            onClick={() => navigate('/')}
             className="inline-flex items-center gap-2 mb-2 cursor-pointer focus:outline-none"
             aria-label="Return to home"
           >

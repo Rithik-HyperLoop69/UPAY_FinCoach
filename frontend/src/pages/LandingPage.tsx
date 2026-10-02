@@ -5,6 +5,7 @@ import { X, ArrowRight, Sparkles, TrendingUp, ShieldCheck, LineChart, Cpu, Rotat
 import GlowCursor from '../components/ui/GlowCursor';
 import Dock, { DockItemData } from '../components/ui/Dock';
 import FlipCard from '../components/ui/FlipCard';
+import LatticeLoader from '../components/ui/LatticeLoader';
 import { usePageTransition } from '../context/PageTransitionContext';
 import './LandingPage.css';
 
@@ -35,6 +36,39 @@ export const LandingPage: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeModal, setActiveModal] = useState<FeatureModalInfo | null>(null);
   const [isCardFlipped, setIsCardFlipped] = useState(false);
+
+  // Full-screen LatticeLoader transition before loading the main Landing page
+  const [isLoadingLanding, setIsLoadingLanding] = useState(true);
+  const [loaderStatus, setLoaderStatus] = useState<'working' | 'done'>('working');
+  const [isFadingOut, setIsFadingOut] = useState(false);
+
+  useEffect(() => {
+    if (!isLoadingLanding) return;
+
+    const doneTimer = setTimeout(() => {
+      setLoaderStatus('done');
+    }, 1000);
+
+    const fadeTimer = setTimeout(() => {
+      setIsFadingOut(true);
+    }, 1350);
+
+    const finishTimer = setTimeout(() => {
+      setIsLoadingLanding(false);
+    }, 1750);
+
+    return () => {
+      clearTimeout(doneTimer);
+      clearTimeout(fadeTimer);
+      clearTimeout(finishTimer);
+    };
+  }, [isLoadingLanding]);
+
+  const handleReloadLanding = () => {
+    setIsLoadingLanding(true);
+    setLoaderStatus('working');
+    setIsFadingOut(false);
+  };
 
   // 1. One-click instant login into demo account
   const handleQuickDemo = async (targetRoute = '/dashboard') => {
@@ -306,6 +340,57 @@ export const LandingPage: React.FC = () => {
 
   return (
     <div className="landing-root">
+      {/* Fullscreen Loading Animation before loading main Landing page */}
+      {isLoadingLanding && (
+        <div
+          className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-[#020617] transition-all duration-400 ease-out select-none ${
+            isFadingOut ? 'opacity-0 scale-105 pointer-events-none' : 'opacity-100 scale-100'
+          }`}
+          style={{
+            backgroundImage:
+              'radial-gradient(circle at 50% 45%, rgba(56, 189, 248, 0.09) 0%, rgba(2, 6, 23, 0.98) 75%)',
+          }}
+        >
+          {/* Brand Emblem */}
+          <div className="mb-6 flex flex-col items-center">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-700 via-blue-600 to-teal-400 flex items-center justify-center text-white font-extrabold text-2xl shadow-xl shadow-blue-600/30">
+              ৳
+            </div>
+            <div className="mt-3 text-[11px] font-semibold tracking-[0.28em] text-slate-400 uppercase font-mono">
+              upay.ai • FinCoach
+            </div>
+          </div>
+
+          {/* React Bits LatticeLoader Component */}
+          <div className="px-6 py-4 rounded-2xl bg-slate-900/80 border border-slate-800/80 backdrop-blur-xl shadow-2xl shadow-cyan-950/40">
+            <LatticeLoader
+              status={loaderStatus}
+              label="LOADING"
+              doneLabel="Done in"
+              errorLabel="Failed after"
+              pattern="sweep"
+              grid={4}
+              shape="round"
+              color="#38bdf8"
+              doneColor="#2dd4bf"
+              errorColor="#ef4444"
+              cellSize={6}
+              gap={8}
+              fontSize={18}
+              step={105}
+              idleOpacity={0.16}
+              glow
+              glowColor="#38bdf8"
+              showTimer
+            />
+          </div>
+
+          <p className="text-xs text-slate-400 mt-4 font-light tracking-wide">
+            Initializing AI cash-flow engine & platform telemetry...
+          </p>
+        </div>
+      )}
+
       <GlowCursor
         color="#67E8F9"
         secondaryColor="#A78BFA"
@@ -345,7 +430,13 @@ export const LandingPage: React.FC = () => {
         {/* Header: 3-column grid */}
         <header className="landing-header">
           {/* Left: Logo */}
-          <Link to="/" className="landing-logo appear appear--scale" aria-label="upay.ai" style={{ ['--d' as any]: '0.08s' }}>
+          <Link
+            to="/"
+            onClick={handleReloadLanding}
+            className="landing-logo appear appear--scale"
+            aria-label="upay.ai"
+            style={{ ['--d' as any]: '0.08s' }}
+          >
             <svg className="landing-logo-mark" viewBox="0 0 24 24" fill="currentColor">
               <g transform="rotate(-30 12 12)">
                 <circle cx="7.3" cy="3.2" r="1.45" />

@@ -20,7 +20,7 @@ export const RegisterPage: React.FC = () => {
 
   const { register } = useAuth();
   const navigate = useNavigate();
-  const { navigateWithShutter } = usePageTransition();
+  const { navigateWithShutter, navigateWithSquiggle } = usePageTransition();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -55,7 +55,7 @@ export const RegisterPage: React.FC = () => {
         monthlyIncome: parseFloat(monthlyIncome) || 45000,
         occupation,
       });
-      navigate('/dashboard');
+      navigateWithSquiggle('/dashboard');
     } catch (err: any) {
       setError(err?.message || 'Registration failed. Please check your inputs.');
     } finally {

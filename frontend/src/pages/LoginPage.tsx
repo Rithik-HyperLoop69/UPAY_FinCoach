@@ -17,7 +17,7 @@ export const LoginPage: React.FC = () => {
 
   const { login } = useAuth();
   const navigate = useNavigate();
-  const { navigateWithShutter } = usePageTransition();
+  const { navigateWithShutter, navigateWithSquiggle } = usePageTransition();
 
   useEffect(() => {
     // 1. Keyboard shortcut: Escape returns to landing page with shutter
@@ -47,10 +47,10 @@ export const LoginPage: React.FC = () => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
- 
+
     try {
       await login(email, password);
-      navigate('/dashboard');
+      navigateWithSquiggle('/dashboard');
     } catch (err: any) {
       setError(err?.message || 'Login failed. Please check your credentials.');
     } finally {

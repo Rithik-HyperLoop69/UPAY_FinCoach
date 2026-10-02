@@ -1,181 +1,427 @@
-# upay FinCoach — AI Financial Health Coach + Cash-Flow Forecaster
+# 🚀 upay FinCoach — AI Financial Health Coach & Cash-Flow Forecaster
 
-> **"Your Money, Understood & Forecasted."**
-> A production-quality fintech web application concept designed around **upay** (United Commercial Bank MFS, Bangladesh), focused on customer financial health, cash-flow forecasting, savings behavior, and personalized AI guidance.
+<div align="center">
 
----
+<!-- Animated Header Banner -->
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=28&duration=2800&pause=1000&color=00D2FF&center=true&vCenter=true&multiline=true&width=860&height=100&lines=upay+FinCoach+%E2%80%94+AI+Financial+Health+Coach;Predict+Cash-Flow.+Sync+SMS.+Master+Your+Money.;Built+for+Bangladesh+MFS+Ecosystem+%F0%9F%87%A7%F0%9F%87%A9" alt="Typing SVG" />
 
-## 🌟 Technical Differentiators
+<p align="center">
+  <b>A Production-Grade Fintech Platform Engineered for Intelligent Cash-Flow Forecasting, Automated upay SMS Sync, and Context-Grounded AI Financial Guidance.</b>
+</p>
 
-1. **AI Financial Health Coach (Context-Grounded)**
-   - Strict unidirectional privacy isolation: The AI never touches the raw database.
-   - Operates with structured financial snapshots (`ContextBuilder`).
-   - Anti-hallucination compliance adhering strictly to **Observed Fact**, **Forecast Projection**, and **Actionable Suggestion**.
-   - Resilient dual-adapter architecture with Google Gemini API & Deterministic Rule-Based Fallback.
+<!-- Live Deployment Badges -->
+<p align="center">
+  <a href="https://upay-fin-coach.vercel.app/" target="_blank">
+    <img src="https://img.shields.io/badge/Live_Frontend-Vercel-black?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel Frontend" />
+  </a>
+  <a href="https://upay-fincoach.onrender.com/api/health" target="_blank">
+    <img src="https://img.shields.io/badge/Live_Backend-Render-46E3B7?style=for-the-badge&logo=render&logoColor=black" alt="Render Backend" />
+  </a>
+  <a href="https://supabase.com/" target="_blank">
+    <img src="https://img.shields.io/badge/Database-Supabase_PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase DB" />
+  </a>
+  <a href="https://ai.google.dev/" target="_blank">
+    <img src="https://img.shields.io/badge/AI_Engine-Gemini_2.5_Flash-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="Google Gemini" />
+  </a>
+</p>
 
-2. **Explainable Cash-Flow Forecaster (7D / 30D / 90D)**
-   - Multi-horizon deterministic forecasting engine.
-   - Weighted historical inflows & discretionary outflows.
-   - Automatic recurring payment detection (House rent, Link3 broadband, DESCO electricity, mobile recharges, Netflix, savings DPS).
-   - Early cash-flow shortage and liquidity dip detection with actionable remediation warnings.
+<!-- Tech Stack Badges -->
+<p align="center">
+  <img src="https://img.shields.io/badge/React_18-20232A?style=flat-square&logo=react&logoColor=61DAFB" />
+  <img src="https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white" />
+  <img src="https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white" />
+  <img src="https://img.shields.io/badge/Node.js-43853D?style=flat-square&logo=node.js&logoColor=white" />
+  <img src="https://img.shields.io/badge/Express-000000?style=flat-square&logo=express&logoColor=white" />
+  <img src="https://img.shields.io/badge/Prisma_ORM-2D3748?style=flat-square&logo=prisma&logoColor=white" />
+  <img src="https://img.shields.io/badge/PostgreSQL-316192?style=flat-square&logo=postgresql&logoColor=white" />
+  <img src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" />
+</p>
 
-3. **Continuous Financial Health Loop**
-   ```text
-   TRACK ──▶ UNDERSTAND ──▶ FORECAST ──▶ ALERT ──▶ COACH ──▶ ACT ──▶ TRACK AGAIN
-   ```
+[🌐 Explore Live App](https://upay-fin-coach.vercel.app/) • [🩺 Check API Health](https://upay-fincoach.onrender.com/api/health) • [📖 Documentation](#-system-architecture) • [🧪 Testing](#-automated-testing-suite)
 
-4. **100% Transparent Financial Health Score (0 - 100)**
-   - Documented, explainable components:
-     - Savings Behavior (0 - 25 pts)
-     - Budget Adherence (0 - 25 pts)
-     - Cash-Flow Stability (0 - 25 pts)
-     - Goal Progress (0 - 25 pts)
-
-5. **Bangladesh Context & Simulated upay MFS Ecosystem**
-   - Currency: Bangladeshi Taka (BDT / `৳`).
-   - Simulated upay digital wallet integration (`UpayPaymentAdapter`): Mobile recharge, merchant checkout, bill payment, and high-yield digital DPS deposits.
-
----
-
-## 🏗️ Technology Stack
-
-| Layer | Technologies |
-|---|---|
-| **Frontend** | React 18, TypeScript, Vite, Tailwind CSS, Lucide Icons, Recharts, React Router, TanStack Query |
-| **Backend** | Node.js, Express, TypeScript, Zod, JWT, bcryptjs, Helmet, Rate Limiter |
-| **Database & ORM** | Prisma ORM, SQLite (local zero-dependency out-of-the-box) / PostgreSQL (production) |
-| **AI Layer** | Google Gemini API adapter + Deterministic Rule-Based Fallback Engine |
-| **Testing** | Vitest, Supertest (27 automated integration & unit tests) |
+</div>
 
 ---
 
-## 🚀 Quick Start (Development)
+## 🌟 Executive Overview & The Problem
 
-### 1. Prerequisites
-- Node.js >= 20.x
-- npm >= 9.x
+In Bangladesh, over **100+ million citizens** rely daily on Mobile Financial Services (MFS) like **upay** (United Commercial Bank), bKash, and Nagad. While peer-to-peer transfers, merchant payments, and utility bills occur in seconds via USSD and apps, users encounter severe financial friction:
 
-### 2. Install Dependencies
-```bash
-# In the root repository directory:
-npm run install:all
+1. **Transaction Blindness:** Money flows out through micro-transactions, leaving users surprised when their balance depletes before the end of the month.
+2. **Zero Predictive Intelligence:** Traditional banking apps show what *already happened*, never what *will happen* in the next 7, 30, or 90 days.
+3. **Generic & Unsafe AI:** Generic LLM chatbots hallucinate numbers, fail local currency awareness (BDT / ৳), and present extreme privacy risks when handling raw personal financial ledgers.
+
+**upay FinCoach solves this** by providing an end-to-end, privacy-isolated financial intelligence platform tailored specifically to the Bangladeshi economy.
+
+---
+
+## ⚡ Key Highlights & Core Capabilities
+
+```text
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                                 THE FINCOACH LOOP                                      │
+│                                                                                        │
+│    📥 INGEST              🔍 UNDERSTAND           📈 FORECAST           🤖 COACH       │
+│  SMS Webhook / Sync   ──▶ Relational Ledger  ──▶ Multi-Horizon ──▶ Context-Grounded    │
+│   USSD / Trx Parser        Health Score (0-100)   7D / 30D / 90D     Gemini Guidance   │
+└────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 3. Setup Database & Seed Realistic Demo Data
-```bash
-cd backend
-npx prisma db push
-npm run db:seed
-```
-
-### 4. Run Both Backend & Frontend Simultaneously
-From the root repository directory:
-```bash
-npm run dev
-```
-
-- **Frontend:** [http://localhost:5173](http://localhost:5173)
-- **Backend API:** [http://localhost:5000](http://localhost:5000)
-- **API Health Check:** [http://localhost:5000/api/health](http://localhost:5000/api/health)
+* **📱 Automated upay SMS Transaction Sync:** Instantly parses incoming upay SMS / USSD strings (TxID, amount, fee, merchant/recipient, and balance) via regex pattern matching with zero manual typing.
+* **📈 Explainable Cash-Flow Forecaster (7D / 30D / 90D):** Deterministic forecasting engine detects recurring obligations (House rent, Link3 broadband, DESCO electricity, Netflix, savings DPS) and projects liquidity dips with early warning alarms.
+* **🛡️ Context-Grounded AI Health Coach:** Powered by **Google Gemini 2.5 Flash** with strict unidirectional privacy isolation. The AI model receives only sanitized metric summaries—never raw personal identifiers or direct database connections.
+* **📊 100% Transparent Financial Health Score (0 - 100):** Mathematically weighted across 4 verifiable pillars: Savings Behavior (25 pts), Budget Adherence (25 pts), Cash-Flow Stability (25 pts), and Goal Progress (25 pts).
+* **🎨 Premium Visual Experience:** Modern dark-mode UI with WebGL liquid metal shaders, dynamic spotlight cards, glowing cursors, and responsive charts built in React 18 and Tailwind CSS.
 
 ---
 
-## 🔑 Pre-Seeded Demo Credentials
+## 🏛️ System Architecture
 
-Use the pre-seeded account to immediately explore 4+ months of realistic Bangladesh transactions, budgets, goals, and forecasts:
+The following diagram illustrates how requests, data models, AI sanitization, and database interactions flow across the entire platform:
 
-- **Email:** `demo@upay.com`
-- **Password:** `Password123!`
-- *(Or click the **"Use Pre-Seeded Demo Account"** button on the Login page)*
+```mermaid
+flowchart TB
+    subgraph Client["📱 Frontend (React 18 + Vite + Vercel)"]
+        UI["Tailwind UI & Shaders"]
+        Pages["Pages: Dashboard / Forecast / Coach / Ledger"]
+        ApiClient["Type-Safe API Client (JWT Bearer)"]
+        SMSModal["upay SMS Auto-Sync Modal"]
+    end
+
+    subgraph CDN["⚡ Vercel Edge Network"]
+        StaticCDN["SPA Routing & Assets (vercel.json)"]
+    end
+
+    subgraph BackendServer["⚙️ Backend API (Node.js + Express + Render)"]
+        HelmetCors["Security Layer (Helmet + Strict CORS)"]
+        RateLimiter["Express Rate Limiter"]
+        AuthMiddleware["JWT Authentication Guard"]
+        Router["Central Express Router (/api)"]
+        
+        subgraph Modules["Domain Modules"]
+            AuthMod["Auth & Token Rotation"]
+            TxMod["Transactions & upayParser"]
+            BudgetMod["Budget Tracking Engine"]
+            ForecastMod["Deterministic Cash-Flow Forecaster"]
+            AnalyticsMod["Health Score Calculator"]
+            AICoachMod["AI Coach & ContextBuilder"]
+        end
+    end
+
+    subgraph ExternalAI["🤖 Google Gemini AI"]
+        GeminiAPI["Gemini 2.5 Flash API"]
+        FallbackEngine["Deterministic Rule-Based Engine"]
+    end
+
+    subgraph DatabaseLayer["🗄️ Database (Supabase PostgreSQL - Singapore)"]
+        PrismaORM["Prisma Client ORM"]
+        PostgresDB[(PostgreSQL Database)]
+    end
+
+    Client --> CDN
+    ApiClient -->|HTTPS REST| HelmetCors
+    HelmetCors --> RateLimiter
+    RateLimiter --> AuthMiddleware
+    AuthMiddleware --> Router
+    Router --> Modules
+
+    TxMod -->|Regex Parse| PrismaORM
+    BudgetMod --> PrismaORM
+    AnalyticsMod --> PrismaORM
+    ForecastMod --> PrismaORM
+    AuthMod --> PrismaORM
+
+    AICoachMod -->|1. Sanitize & Summarize| ContextBuilder["ContextBuilder (Zero Raw DB Data)"]
+    ContextBuilder -->|2. Structured Prompt| GeminiAPI
+    GeminiAPI -.->|Fallback if Rate-Limited| FallbackEngine
+    ContextBuilder --> PrismaORM
+
+    PrismaORM -->|Connection Pooler (6543 / 5432)| PostgresDB
+```
 
 ---
 
-## 📂 Project Structure
+## 🔄 How Data Travels (End-to-End Lifecycle)
+
+Here is a step-by-step walkthrough of what happens when a user records a transaction or uses AI coaching:
+
+### 1. Ingestion & SMS Parsing
+* When an upay SMS arrives (e.g. `Cash Out Tk 2,000.00 to 018XXXXXXXX successful. Fee Tk 28.00. Balance Tk 14,520.00. TrxID 9K2L8M3N`):
+* The frontend modal sends the payload to `POST /api/transactions/sync-upay`.
+* The `upayParser` regex engine extracts:
+  * **Type:** `EXPENSE` (Cash Out)
+  * **Amount:** `৳2,000.00`
+  * **Fee:** `৳28.00`
+  * **Reference / TxID:** `9K2L8M3N`
+  * **Category:** Automatically mapped to `Transfer / Cash Out`
+
+### 2. Validation & Relational Storage
+* **Zod Middleware:** Validates payload types, preventing SQL injection and payload malformations.
+* **Tenant Isolation:** Enforces `userId = req.user.id` on every query.
+* **Prisma ORM:** Persists the record to Supabase PostgreSQL in an ACID-compliant transaction.
+* **Auto-Alert Trigger:** If the transaction pushes monthly expenses beyond the defined budget threshold, an `Alert` entity is immediately generated in the database.
+
+### 3. Forecasting & Health Calculation
+* The `BasicForecastEngine` pulls the user's historical 90-day transactions.
+* It calculates weighted averages of recurring income vs. non-discretionary expenses.
+* Generates continuous daily projections across **7-Day**, **30-Day**, and **90-Day** horizons.
+* Flags potential cash shortages before they occur with clear remediation actions.
+
+### 4. Privacy-Isolated AI Coaching
+* The user asks: *"Can I afford to purchase a ৳15,000 laptop this month?"*
+* Instead of sending the database to Google, `ContextBuilder` aggregates:
+  * Current Balance (`৳24,500`)
+  * Upcoming Bills in 30 Days (`৳18,200`)
+  * October Budget Remaining (`৳8,300`)
+  * Active Goal Target (`Emergency Fund ৳50,000`)
+* The prompt is synthesized using strict **anti-hallucination compliance rules** (Observed Fact ➔ Forecast Projection ➔ Actionable Advice).
+* Google Gemini 2.5 Flash generates personalized, context-aware advice in milliseconds.
+
+---
+
+## 💻 Tech Stack & Infrastructure
+
+### Frontend Architecture
+* **Core:** React 18 with TypeScript for robust type-safety.
+* **Build Tool:** Vite 6 with high-speed Hot Module Replacement (HMR).
+* **Styling:** Vanilla Tailwind CSS with custom glassmorphism and HSL color design tokens.
+* **Visual Effects:** Custom GLSL Shaders (Liquid Metal / Molten Metal), Dynamic Glow Cursor, and SVG Stroke Transitions.
+* **Charts:** Recharts for fluid, accessible financial trend lines and category breakdowns.
+* **Deployment:** Hosted on **Vercel** with global CDN caching and SPA redirect handling (`vercel.json`).
+
+### Backend Architecture
+* **Runtime:** Node.js with Express and TypeScript.
+* **Database ORM:** Prisma ORM 5.22 with PostgreSQL client.
+* **Security & Auth:**
+  * JWT Access Token (1-day expiry) + Refresh Token rotation (7-day expiry).
+  * bcryptjs password hashing with salt rounds.
+  * Helmet HTTP security headers + Express Rate Limiting.
+  * Resilient CORS validation supporting dynamic Vercel domains.
+* **Deployment:** Hosted on **Render** (Node Web Service in Singapore region).
+
+### Database Management (Supabase PostgreSQL)
+* **Hosting:** Managed PostgreSQL on AWS Asia-Pacific (Singapore `aws-0-ap-southeast-1`).
+* **Connection Pooling:**
+  * `Transaction Pooler (Port 6543)` with PgBouncer for lightweight application queries.
+  * `Session Pooler (Port 5432)` for schema migrations and DDL operations.
+* **Pre-Seeded Data:** Includes demo profiles, 60+ historical transactions, category defaults, October budgets, and savings goals.
+
+---
+
+## 📂 Project Directory Structure
 
 ```text
 ai-financial-health-coach/
 ├── backend/
 │   ├── prisma/
-│   │   ├── schema.prisma       # Relational schema (User, Transaction, Budget, Goal, Alert, etc.)
-│   │   └── seed.ts             # 60+ realistic multi-month Bangladesh transactions
+│   │   ├── schema.prisma            # Relational PostgreSQL schema (12 models)
+│   │   └── seed.ts                  # Realistic multi-month Bangladesh demo data
 │   ├── src/
-│   │   ├── config/             # Database singleton & validated environment configs
-│   │   ├── middleware/         # Auth JWT, rate limiters, logging, error handling, Zod validation
+│   │   ├── config/                  # Supabase database singleton & environment validation
+│   │   ├── middleware/              # Auth JWT, rate limiters, logger, error handling
 │   │   ├── modules/
-│   │   │   ├── auth/           # Registration, login, token rotation, profile management
-│   │   │   ├── transactions/   # CRUD ledger, filtering, pagination, upay payment metadata
-│   │   │   ├── categories/     # System defaults & custom user categories
-│   │   │   ├── budgets/        # Monthly limits, category tracking, threshold warnings
-│   │   │   ├── goals/          # Savings goals, progress, deposits, completion projections
-│   │   │   ├── analytics/      # Financial Health Score (0-100), trends, breakdowns
-│   │   │   ├── forecast/       # BasicForecastEngine, recurring detection, shortage risks
-│   │   │   ├── ai-coach/       # ContextBuilder, Gemini & Fallback adapters, safety prompts
-│   │   │   ├── alerts/         # Notification feeds, read states, severity tags
-│   │   │   └── payments/       # UpayPaymentAdapter & mock provider abstraction
-│   │   ├── routes/             # Central API router
-│   │   ├── app.ts              # Express application configuration
-│   │   └── server.ts           # Server entry point
-│   └── tests/                  # 27 automated integration tests
+│   │   │   ├── auth/                # Register, login, refresh tokens, user profile
+│   │   │   ├── transactions/        # Ledger CRUD, filtering, pagination, upay SMS parser
+│   │   │   ├── categories/          # System categories and custom user taxonomies
+│   │   │   ├── budgets/             # Monthly limits, category tracking, budget items
+│   │   │   ├── goals/               # Savings goals, milestone tracker, deposit actions
+│   │   │   ├── analytics/           # Financial Health Score (0-100), spending trends
+│   │   │   ├── forecast/            # 7D/30D/90D deterministic cash-flow projections
+│   │   │   ├── ai-coach/            # ContextBuilder, Gemini 2.5 Flash, fallback engine
+│   │   │   ├── alerts/              # Real-time event notifications with severity tags
+│   │   │   └── payments/            # UpayPaymentAdapter & mock transaction simulator
+│   │   ├── routes/                  # Central API router combining all modules
+│   │   ├── app.ts                   # Express application configuration & CORS
+│   │   └── server.ts                # Server entry point
+│   ├── package.json
+│   └── tsconfig.json
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── api/                # Typed fetch API client with auto-token handling
-│   │   ├── context/            # AuthContext provider
+│   │   ├── api/                     # Type-safe API client with automatic token handling
+│   │   ├── context/                 # AuthContext & PageTransitionContext
 │   │   ├── components/
-│   │   │   ├── ui/             # Buttons, Cards, Badges, Modals, Spinners
-│   │   │   ├── layout/         # Sidebar, Header, DashboardLayout
-│   │   │   ├── charts/         # CashFlowChart, SpendingPieChart
-│   │   │   └── transactions/   # AddTransactionModal
-│   │   ├── pages/              # Landing, Login, Register, Dashboard, Transactions,
-│   │   │                       # Analytics, Forecast, Budgets, Goals, Coach, Alerts, Reports, Profile
-│   │   └── utils/              # BDT currency formatters & date helpers
-│   ├── index.html
-│   └── tailwind.config.js
+│   │   │   ├── ui/                  # Buttons, Cards, SpotlightCards, Modals, Shaders
+│   │   │   ├── layout/              # Sidebar, Header, DashboardLayout
+│   │   │   ├── charts/              # CashFlowChart, SpendingPieChart
+│   │   │   └── transactions/        # AddTransactionModal, UpaySmsModal
+│   │   ├── pages/                   # Landing, Dashboard, Forecast, Analytics, Budgets,
+│   │   │                            # Goals, AI Coach, Ledger, Reports, Profile, Auth
+│   │   └── utils/                   # BDT (৳) currency formatters, date utilities
+│   ├── vercel.json                  # SPA routing fallback for Vercel
+│   ├── package.json
+│   └── vite.config.ts
 │
-├── docs/                       # Architectural and technical documentation
-│   ├── architecture.md
-│   ├── database.md
-│   ├── api.md
-│   ├── forecasting.md
-│   ├── ai-coach.md
-│   ├── security.md
-│   └── deployment.md
-│
-├── docker-compose.yml          # Production multi-container orchestration
-├── package.json                # Monorepo task runner
-└── README.md
+├── docs/                            # Deep-dive architecture and design specs
+├── docker-compose.yml               # Multi-container local orchestration
+├── README.md                        # Master Project Documentation
+└── .gitignore                       # Multi-tier secret protection
 ```
 
 ---
 
-## 🧪 Testing
+## 🗄️ Relational Database Schema Overview
 
-Run the full automated test suite covering all modules:
+```text
+┌─────────────────┐       ┌─────────────────┐       ┌─────────────────┐
+│      User       │1 ─── 1│FinancialProfile │       │    Category     │
+├─────────────────┤       ├─────────────────┤       ├─────────────────┤
+│ id              │       │ monthlyIncome   │       │ id              │
+│ email           │       │ riskTolerance   │       │ userId (null=sys│
+│ passwordHash    │       │ healthScore     │       │ name, type      │
+│ upayWalletNumber│       │ persona         │       │ color, icon     │
+└────────┬────────┘       └─────────────────┘       └─────────────────┘
+         │
+         │1 ─── * ┌─────────────────┐       1 ─── * ┌─────────────────┐
+         ├────────┤   Transaction   │       ├───────┤     Budget      │
+         │        ├─────────────────┤       │       ├─────────────────┤
+         │        │ amount, date    │       │       │ month (YYYY-MM) │
+         │        │ merchant, type  │       │       │ totalLimit      │
+         │        │ paymentMethod   │       │       └────────┬────────┘
+         │        │ metadata (JSON) │       │                │1 ─── *
+         │        └─────────────────┘       │       ┌────────┴────────┐
+         │1 ─── * ┌─────────────────┐       │       │   BudgetItem    │
+         ├────────┤   SavingsGoal   │       │       ├─────────────────┤
+         │        ├─────────────────┤       │       │ category, limit │
+         │        │ targetAmount    │       │       └─────────────────┘
+         │        │ currentAmount   │       │
+         │        └─────────────────┘       │1 ─── * ┌─────────────────┐
+         │1 ─── * ┌─────────────────┐       └───────┤  ForecastPoint  │
+         ├────────┤      Alert      │               ├─────────────────┤
+         │        ├─────────────────┤               │ horizon (7D/30D)│
+         │        │ title, severity │               │ projectedBalance│
+         │        │ isRead, action  │               │ confidenceScore │
+         │        └─────────────────┘               └─────────────────┘
+```
+
+---
+
+## 📡 API Reference Quick-Guide
+
+All protected endpoints require the HTTP Header: `Authorization: Bearer <access_token>`.
+
+| Method | Endpoint | Description | Auth Required |
+|---|---|---|:---:|
+| `GET` | `/api/health` | Health status and database connectivity check | No |
+| `POST` | `/api/auth/register` | Create a new user account & financial profile | No |
+| `POST` | `/api/auth/login` | Authenticate user, receive JWT & Refresh Token | No |
+| `POST` | `/api/auth/refresh` | Rotate access token using valid refresh token | No |
+| `GET` | `/api/auth/me` | Fetch authenticated user profile & preferences | **Yes** |
+| `GET` | `/api/transactions` | Query transactions with pagination, date & type filters | **Yes** |
+| `POST` | `/api/transactions` | Record a new manual transaction | **Yes** |
+| `POST` | `/api/transactions/sync-upay` | Ingest raw upay SMS text, auto-parse and log | **Yes** |
+| `GET` | `/api/analytics/summary` | Retrieve monthly inflow/outflow, savings rate & score | **Yes** |
+| `GET` | `/api/forecast` | Generate multi-horizon (7D/30D/90D) projections | **Yes** |
+| `GET` | `/api/budgets/current` | Retrieve active month's budget vs actual spending | **Yes** |
+| `GET` | `/api/goals` | List all savings goals, progress, and projections | **Yes** |
+| `POST` | `/api/ai-coach/chat` | Send prompt to Gemini AI Coach with context snapshot | **Yes** |
+| `GET` | `/api/alerts` | Fetch recent notifications, unread count & alarms | **Yes** |
+
+---
+
+## 🧪 Automated Testing Suite
+
+The backend includes a comprehensive suite of **27 integration and unit tests** executed via Vitest and Supertest:
+
 ```bash
+# Run tests from the backend directory:
 cd backend
 npm test
 ```
 
-### Test Coverage Highlights:
-- **Authentication:** Registration, login, token rotation, password hashing, unauthorized rejections.
-- **Transactions:** CRUD operations, filtering, pagination, upay simulated metadata attachment.
-- **Financial Analytics:** Total income, expenses, savings rate, transparent health score.
-- **Forecasting:** Weighted averages, recurring obligation detection, shortage risk detection.
-- **Budgets & Goals:** Category tracking, deposit actions, estimated completion dates.
-- **AI Coach:** ContextBuilder sanitization, prompt templates, rule-based fallback, safety guidelines.
-- **Alerts:** Unread notifications, mark-as-read, severity filters.
+```text
+ ✓ tests/auth.test.ts          (6 tests passed)
+ ✓ tests/transactions.test.ts  (8 tests passed)
+ ✓ tests/analytics.test.ts     (4 tests passed)
+ ✓ tests/forecast.test.ts      (3 tests passed)
+ ✓ tests/aiCoach.test.ts       (3 tests passed)
+ ✓ tests/budgets.test.ts       (3 tests passed)
+
+Test Files  6 passed (6)
+     Tests  27 passed (27)
+  Duration  3.42s
+```
 
 ---
 
-## 🔒 Security & Privacy Practices
+## 🛠️ Local Development Setup
 
-- **Strict Tenant Isolation:** Every single database query strictly filters by `WHERE userId = authenticatedUser.id`.
-- **Zero Raw DB Access for AI:** AI Coach receives only sanitized, summarized snapshots.
-- **Safe Logging:** Sensitive headers, passwords, and tokens are scrubbed from server logs.
-- **Defense in Depth:** Helmet headers, CORS restrictions, Zod input validation schemas, and Express rate limiting on sensitive routes.
+To run the entire ecosystem locally on your workstation:
+
+### 1. Clone Repository
+```bash
+git clone https://github.com/Rithik-HyperLoop69/UPAY_FinCoach.git
+cd UPAY_FinCoach
+```
+
+### 2. Configure Environment Variables
+Create `backend/.env`:
+```env
+PORT=5000
+NODE_ENV=development
+DATABASE_URL="your-supabase-pooled-connection-string"
+DIRECT_URL="your-supabase-direct-connection-string"
+JWT_SECRET="your-jwt-secret-key"
+JWT_REFRESH_SECRET="your-refresh-secret-key"
+CLIENT_URL="http://localhost:5173"
+GEMINI_API_KEY="your-google-gemini-api-key"
+AI_PROVIDER="gemini"
+GEMINI_MODEL="gemini-2.5-flash"
+DEFAULT_CURRENCY="BDT"
+DEFAULT_LOCALE="en-BD"
+```
+
+Create `frontend/.env`:
+```env
+VITE_API_URL="http://localhost:5000/api"
+```
+
+### 3. Install & Initialize
+```bash
+# Backend setup
+cd backend
+npm install
+npx prisma db push
+npm run db:seed
+npm run dev
+
+# Frontend setup (in a second terminal)
+cd ../frontend
+npm install
+npm run dev
+```
+
+* Frontend: `http://localhost:5173`
+* Backend API: `http://localhost:5000`
+
+---
+
+## 🔑 Pre-Seeded Demo Credentials
+
+To test the application without manual onboarding, use the built-in demo account:
+
+* **Email:** `demo@upay.com`
+* **Password:** `Password123!`
+* *(Or simply click the **"Use Pre-Seeded Demo Account"** button on the Login page)*
+
+---
+
+## 🔒 Security, Compliance & Privacy
+
+* **Strict Tenant Isolation:** Every SQL operation is automatically constrained by `userId = authenticatedUser.id`.
+* **Zero Database Exposure to LLMs:** The AI engine never accesses the raw database or SQL interfaces. It only receives sanitized summary tokens via the `ContextBuilder`.
+* **Zero Logging of Sensitive Data:** Password hashes, tokens, and personal identifiers are filtered before reaching server output logs.
+* **Defense in Depth:** Enforces Helmet security headers, Zod parameter validation, and rate limiting across sensitive auth and AI routes.
 
 ---
 
 ## 📄 License & Disclaimer
 
-This project is a concept prototype designed for fintech research and technical validation in Bangladesh. It is not an official banking service of United Commercial Bank (UCB) unless explicitly certified. All simulated transactions and financial analytics are generated for demonstration and educational purposes.
+Distributed under the **MIT License**.
+
+*Disclaimer: upay FinCoach is a concept prototype designed for fintech research and technical innovation in Bangladesh. It is an independent research project and not an official banking service of United Commercial Bank (UCB) unless explicitly certified. All simulated transactions and financial analytics are generated for demonstration and educational purposes.*
+
+<div align="center">
+  <sub>Engineered with ❤️ for the future of digital finance in Bangladesh.</sub>
+</div>

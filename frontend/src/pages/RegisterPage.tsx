@@ -4,6 +4,7 @@ import { Lock, Mail, User as UserIcon, Briefcase, ArrowRight, ArrowLeft } from '
 import { Button } from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
 import { usePageTransition } from '../context/PageTransitionContext';
+import Dither from '../components/ui/Dither';
 
 export const RegisterPage: React.FC = () => {
   const [fullName, setFullName] = useState('');
@@ -60,7 +61,25 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center p-4 relative">
+    <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center p-4 relative overflow-hidden">
+      {/* Animated Dither WebGL Background */}
+      <div className="absolute inset-0 z-0">
+        <Dither
+          waveColor={[0.5, 0.5, 0.5]}
+          disableAnimation={false}
+          enableMouseInteraction={true}
+          mouseRadius={0.3}
+          colorNum={4}
+          waveAmplitude={0.3}
+          waveFrequency={3}
+          waveSpeed={0.04}
+          backgroundColor={[0.00784313725490196, 0.0196078431372549, 0.07058823529411765]}
+        />
+      </div>
+
+      {/* Subtle Depth Vignette for Optimal Card Contrast */}
+      <div className="absolute inset-0 pointer-events-none z-[1] bg-gradient-to-b from-black/40 via-transparent to-black/60 backdrop-blur-[0.5px]" />
+
       {/* Floating Top-Left Back Button to Landing Page */}
       <div className="fixed top-5 left-5 z-20">
         <button
@@ -73,8 +92,6 @@ export const RegisterPage: React.FC = () => {
           <span>Back to Landing Page</span>
         </button>
       </div>
-
-      <div className="absolute w-96 h-96 bg-teal-500/10 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-md">
         <div className="text-center mb-8">

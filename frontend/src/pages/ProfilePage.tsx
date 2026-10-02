@@ -11,12 +11,24 @@ import {
 import { Card, CardHeader } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { usePageTransition } from '../context/PageTransitionContext';
 import { api } from '../api/client';
 import { formatBDT } from '../utils/formatters';
 
 export const ProfilePage: React.FC = () => {
   const { user, refreshUser, logout } = useAuth();
+  const { playSquiggleTransition } = usePageTransition();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    playSquiggleTransition(() => {
+      logout(() => {
+        navigate('/login');
+      });
+    });
+  };
 
   // Profile Form State
   const [fullName, setFullName] = useState(user?.fullName || '');
@@ -309,7 +321,7 @@ export const ProfilePage: React.FC = () => {
 
       {/* Logout Action */}
       <div className="pt-4 flex justify-center">
-        <Button variant="danger" size="sm" onClick={logout}>
+        <Button variant="danger" size="sm" onClick={handleLogout}>
           Sign Out of upay FinCoach
         </Button>
       </div>

@@ -8,7 +8,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (data: any) => Promise<void>;
-  logout: () => Promise<void>;
+  logout: (onDone?: () => void) => Promise<void>;
   refreshUser: () => Promise<void>;
   connectUpay: (walletNumber: string) => Promise<void>;
 }
@@ -72,15 +72,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const logout = async () => {
+  const logout = async (onDone?: (() => void) | any) => {
     try {
       const refreshToken = localStorage.getItem('upay_refresh_token');
-      await api.post('/auth/logout', { refreshToken }).catch(() => {});
+      if (refreshToken) {
+        api.post('/auth/logout', { refreshToken }).catch(() => {});
+      }
     } finally {
       localStorage.removeItem('upay_access_token');
       localStorage.removeItem('upay_refresh_token');
       setUser(null);
-      window.location.href = '/login';
+      if (typeof onDone === 'function') {
+        onDone();
+      } else {
+        window.location.href = '/login';
+      }
     }
   };
 

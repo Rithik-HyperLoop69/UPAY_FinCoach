@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   ArrowLeftRight,
@@ -15,6 +15,7 @@ import {
   Wallet,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { usePageTransition } from '../../context/PageTransitionContext';
 import { formatBDT } from '../../utils/formatters';
 
 interface SidebarProps {
@@ -24,6 +25,16 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const { user, logout } = useAuth();
+  const { playSquiggleTransition } = usePageTransition();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    playSquiggleTransition(() => {
+      logout(() => {
+        navigate('/login');
+      });
+    });
+  };
 
   const navItems = [
     { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
@@ -132,9 +143,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               </div>
             </div>
             <button
-              onClick={logout}
+              onClick={handleLogout}
               title="Log out"
-              className="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-800/80 rounded-xl transition-colors"
+              className="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-800/80 rounded-xl transition-colors cursor-pointer"
             >
               <LogOut className="w-4 h-4" />
             </button>

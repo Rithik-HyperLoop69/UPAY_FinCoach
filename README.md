@@ -82,7 +82,7 @@ The following diagram illustrates how requests, data models, AI sanitization, an
 
 ```mermaid
 flowchart TB
-    subgraph Client["📱 Frontend (React 18 + Vite + Vercel)"]
+    subgraph Client["📱 Frontend (React 18 + Vite)"]
         UI["Tailwind UI & Shaders"]
         Pages["Pages: Dashboard / Forecast / Coach / Ledger"]
         ApiClient["Type-Safe API Client (JWT Bearer)"]
@@ -94,7 +94,7 @@ flowchart TB
     end
 
     subgraph BackendServer["⚙️ Backend API (Node.js + Express + Render)"]
-        HelmetCors["Security Layer (Helmet + Strict CORS)"]
+        HelmetCors["Security Layer (Helmet + CORS)"]
         RateLimiter["Express Rate Limiter"]
         AuthMiddleware["JWT Authentication Guard"]
         Router["Central Express Router (/api)"]
@@ -114,30 +114,30 @@ flowchart TB
         FallbackEngine["Deterministic Rule-Based Engine"]
     end
 
-    subgraph DatabaseLayer["🗄️ Database (Supabase PostgreSQL - Singapore)"]
+    subgraph DatabaseLayer["🗄️ Database (Supabase PostgreSQL)"]
         PrismaORM["Prisma Client ORM"]
-        PostgresDB[(PostgreSQL Database)]
+        PostgresDB[("PostgreSQL Database")]
     end
 
     Client --> CDN
-    ApiClient -->|HTTPS REST| HelmetCors
+    ApiClient -->|"HTTPS REST"| HelmetCors
     HelmetCors --> RateLimiter
     RateLimiter --> AuthMiddleware
     AuthMiddleware --> Router
     Router --> Modules
 
-    TxMod -->|Regex Parse| PrismaORM
+    TxMod -->|"Regex Parse"| PrismaORM
     BudgetMod --> PrismaORM
     AnalyticsMod --> PrismaORM
     ForecastMod --> PrismaORM
     AuthMod --> PrismaORM
 
-    AICoachMod -->|1. Sanitize & Summarize| ContextBuilder["ContextBuilder (Zero Raw DB Data)"]
-    ContextBuilder -->|2. Structured Prompt| GeminiAPI
-    GeminiAPI -.->|Fallback if Rate-Limited| FallbackEngine
+    AICoachMod -->|"1. Sanitize & Summarize"| ContextBuilder["ContextBuilder (Zero Raw DB Data)"]
+    ContextBuilder -->|"2. Structured Prompt"| GeminiAPI
+    GeminiAPI -.->|"Fallback if Rate-Limited"| FallbackEngine
     ContextBuilder --> PrismaORM
 
-    PrismaORM -->|Connection Pooler (6543 / 5432)| PostgresDB
+    PrismaORM -->|"Pooled Connection (Port 6543 / 5432)"| PostgresDB
 ```
 
 ---

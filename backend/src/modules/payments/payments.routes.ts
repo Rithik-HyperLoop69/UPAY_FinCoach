@@ -8,8 +8,10 @@ const controller = new PaymentsController();
 // Public transaction verification by TrxID
 router.get('/upay/sandbox/verify/:trxId', controller.verifySandboxTrx);
 
-// Authenticated gateway initiation and execution
+// Authenticated gateway routes
 router.use(authenticateToken);
+router.get('/upay/sandbox/balance', controller.getSandboxBalance);
+router.get('/upay/sandbox/transactions', controller.getSandboxTransactions);
 router.post('/upay/sandbox/initiate', controller.initiateSandboxPayment);
 router.post('/upay/sandbox/execute', controller.executeSandboxPayment);
 

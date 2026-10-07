@@ -41,6 +41,7 @@ apiRouter.get('/', (req, res) => {
       goals: '/api/goals',
       alerts: '/api/alerts',
       coach: '/api/coach',
+      payments: '/api/payments',
     },
   });
 });

@@ -5,6 +5,10 @@ import { authenticateToken } from '../../middleware/auth.middleware';
 const router = Router();
 const controller = new AnalyticsController();
 
+// Public model evaluation and model cards
+router.get('/evaluation', controller.getEvaluationReport);
+router.get('/model-card', controller.getModelCards);
+
 router.use(authenticateToken);
 
 router.get('/summary', controller.getSummary);
@@ -13,7 +17,5 @@ router.get('/trends', controller.getMonthlyTrends);
 router.get('/health-score', controller.getHealthScore);
 router.get('/anomalies', controller.getAnomalies);
 router.get('/behavior-profile', controller.getBehaviorProfile);
-router.get('/evaluation', controller.getEvaluationReport);
-router.get('/model-card', controller.getModelCards);
 
 export default router;

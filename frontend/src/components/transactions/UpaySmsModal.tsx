@@ -11,6 +11,7 @@ import {
   Tag,
   ShieldCheck,
   Send,
+  Languages,
 } from 'lucide-react';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
@@ -24,52 +25,64 @@ interface UpaySmsModalProps {
   onSuccess: (message: string) => void;
 }
 
-interface ParsedResult {
+interface ParsedMfsResult {
+  provider: string;
+  providerDisplayName: string;
   type: 'EXPENSE' | 'INCOME' | 'TRANSFER';
   amount: number;
   fee: number;
   balanceAfter?: number;
-  merchant: string;
+  counterparty: string;
+  merchant?: string;
   category: string;
   description: string;
   trxId: string;
   paymentMethod: string;
   rawSms: string;
+  confidence: number;
+  hadBanglaNumerals?: boolean;
+  detectedLanguage?: string;
 }
 
 const SAMPLE_SMS = [
   {
-    label: '⚡ DESCO Bill Pay ৳3,850',
+    provider: 'upay',
+    label: '⚡ upay: DESCO Bill ৳3,850',
     text: 'Bill Pay of Tk 3,850.00 to DESCO Electricity successful. Fee Tk 0.00. Balance Tk 14,470.00. TrxID 7B8C9D0E at 02/10/2026 14:15',
   },
   {
-    label: '🛍️ Aarong Fashion ৳1,450',
-    text: 'Payment of Tk 1,450.00 to Aarong successful. Balance Tk 18,320.00. TrxID 8A9B2C4D at 02/10/2026 19:30',
+    provider: 'bkash',
+    label: '🛍️ bKash: Aarong ৳2,400',
+    text: 'Payment Tk 2,400.00 to Aarong successful. Fee Tk 0.00. Balance Tk 14,200.00. TrxID 9K43JD21 at 05/10/2026',
   },
   {
-    label: '🛒 Shwapno Grocery ৳2,650',
-    text: 'Payment of Tk 2,650.00 to Shwapno Superstore successful. Balance Tk 11,820.00. TrxID 6C7D8E9F at 02/10/2026 16:40',
+    provider: 'nagad',
+    label: '🛒 Nagad: Chaldal ৳640',
+    text: 'Payment Tk 640.00 to Chaldal is successful. Fee: Tk 0.00. Balance: Tk 2,480.00. TxnID: 9876543B',
   },
   {
-    label: '💸 Send Money ৳1,500',
+    provider: 'generic',
+    label: '🇧🇩 বাংলা: ১৫০০ টাকা ক্যাশ ইন',
+    text: 'আপনার অ্যাকাউন্টে ১৫০০ টাকা ক্যাশ ইন সফল হয়েছে। ব্যালেন্স ৪২৫০ টাকা। TrxID BN9921',
+  },
+  {
+    provider: 'upay',
+    label: '💸 upay: Send Money ৳1,500',
     text: 'Send Money Tk 1,500.00 to 01912345678 successful. Fee Tk 5.00. Balance Tk 8,287.00. TrxID 4E5F6A7B at 02/10/2026 18:50',
-  },
-  {
-    label: '💵 Received Money ৳15,000',
-    text: 'You have received Tk 15,000.00 from 01798765432. Balance Tk 23,087.00. TrxID 2E3F4A5B at 02/10/2026 12:00',
   },
 ];
 
 export const UpaySmsModal: React.FC<UpaySmsModalProps> = ({ isOpen, onClose, onSuccess }) => {
   const [smsText, setSmsText] = useState('');
-  const [parsed, setParsed] = useState<ParsedResult | null>(null);
+  const [providerHint, setProviderHint] = useState<string>('auto');
+  const [parsed, setParsed] = useState<ParsedMfsResult | null>(null);
   const [isParsing, setIsParsing] = useState(false);
   const [isIngesting, setIsIngesting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleParse = async (text: string) => {
+  const handleParse = async (text: string, provider = providerHint) => {
     setSmsText(text);
-    if (!text.trim() || text.trim().length < 8) {
+    if (!text.trim() || text.trim().length < 6) {
       setParsed(null);
       setError(null);
       return;
@@ -79,17 +92,21 @@ export const UpaySmsModal: React.FC<UpaySmsModalProps> = ({ isOpen, onClose, onS
     setError(null);
 
     try {
-      const res = await api.post<{ alreadyExists: boolean; parsed: ParsedResult; message: string }>(
-        '/transactions/upay/parse-sms',
-        { smsText: text, autoSave: false }
+      const res = await api.post<{ alreadyExists: boolean; parsed: ParsedMfsResult; message: string }>(
+        '/transactions/mfs/parse-sms',
+        {
+          smsText: text,
+          providerHint: provider === 'auto' ? undefined : provider,
+          autoSave: false,
+        }
       );
 
       setParsed(res.parsed);
       if (res.alreadyExists) {
-        setError(`Notice: Transaction TrxID ${res.parsed.trxId} is already recorded in your ledger.`);
+        setError(`Notice: Transaction ID ${res.parsed.trxId} is already recorded in your ledger.`);
       }
     } catch (err: any) {
-      setError(err?.message || 'Unable to parse this SMS. Ensure it is a valid upay confirmation.');
+      setError(err?.message || 'Unable to parse SMS. Ensure it contains a valid transaction record.');
       setParsed(null);
     } finally {
       setIsParsing(false);
@@ -103,8 +120,12 @@ export const UpaySmsModal: React.FC<UpaySmsModalProps> = ({ isOpen, onClose, onS
 
     try {
       const res = await api.post<{ alreadyExists: boolean; message: string; transaction: any }>(
-        '/transactions/upay/parse-sms',
-        { smsText, autoSave: true }
+        '/transactions/mfs/parse-sms',
+        {
+          smsText,
+          providerHint: providerHint === 'auto' ? undefined : providerHint,
+          autoSave: true,
+        }
       );
 
       if (res.alreadyExists) {
@@ -112,7 +133,7 @@ export const UpaySmsModal: React.FC<UpaySmsModalProps> = ({ isOpen, onClose, onS
         return;
       }
 
-      onSuccess(res.message || 'Transaction successfully ingested from upay SMS!');
+      onSuccess(res.message || 'Transaction successfully ingested from MFS SMS!');
       setSmsText('');
       setParsed(null);
       onClose();
@@ -127,23 +148,48 @@ export const UpaySmsModal: React.FC<UpaySmsModalProps> = ({ isOpen, onClose, onS
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Auto-Track from upay SMS"
-      subtitle="Instant regex parser for automated Bangladesh MFS transaction recording"
+      title="Universal MFS & Bengali SMS Ingestion"
+      subtitle="Intelligent parser supporting upay, bKash, Nagad, Rocket, and Bengali script (০-৯)"
       maxWidth="lg"
     >
       <div className="space-y-5">
+        {/* Provider Selector Pills */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-[11px] font-semibold text-slate-400">Target MFS:</span>
+          {(['auto', 'upay', 'bkash', 'nagad', 'rocket'] as const).map((p) => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => {
+                setProviderHint(p);
+                if (smsText.trim()) handleParse(smsText, p);
+              }}
+              className={`text-xs px-2.5 py-1 rounded-lg border font-medium transition-all ${
+                providerHint === p
+                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 shadow'
+                  : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200'
+              }`}
+            >
+              {p === 'auto' ? 'Auto-Detect' : p.toUpperCase()}
+            </button>
+          ))}
+        </div>
+
         {/* Sample Templates Quick-Pick */}
         <div>
           <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider block mb-2 flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-teal-400" />
-            Quick-Test with Sample upay SMS:
+            Quick-Test with Sample Bangladeshi SMS:
           </label>
           <div className="flex flex-wrap gap-2">
             {SAMPLE_SMS.map((sample, i) => (
               <button
                 key={i}
                 type="button"
-                onClick={() => handleParse(sample.text)}
+                onClick={() => {
+                  setProviderHint(sample.provider === 'generic' ? 'auto' : sample.provider);
+                  handleParse(sample.text, sample.provider === 'generic' ? 'auto' : sample.provider);
+                }}
                 className="text-xs px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-teal-500/20 border border-slate-700 hover:border-teal-500/40 text-slate-300 hover:text-teal-200 transition-all cursor-pointer"
               >
                 {sample.label}
@@ -155,21 +201,21 @@ export const UpaySmsModal: React.FC<UpaySmsModalProps> = ({ isOpen, onClose, onS
         {/* SMS Textarea Input */}
         <div>
           <label className="text-xs font-semibold text-slate-300 block mb-1.5 flex items-center justify-between">
-            <span>Paste upay SMS Message Text:</span>
-            <span className="text-[10px] text-slate-400 font-mono">Sender: UPAY / 16268</span>
+            <span>Paste MFS / Banking SMS Text:</span>
+            <span className="text-[10px] text-slate-400 font-mono">Accepts English, Banglish & Bangla (০-৯)</span>
           </label>
           <div className="relative">
             <textarea
               rows={3}
               value={smsText}
               onChange={(e) => handleParse(e.target.value)}
-              placeholder="e.g. Payment of Tk 1,450.00 to Aarong successful. Balance Tk 18,320.00. TrxID 8A9B2C4D..."
+              placeholder="e.g. Payment of Tk 1,450.00 to Aarong... or আপনার অ্যাকাউন্টে ১৫০০ টাকা ক্যাশ ইন সফল হয়েছে..."
               className="w-full p-3.5 bg-slate-950/80 border border-slate-700 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:border-teal-500 text-xs font-mono leading-relaxed"
             />
             {isParsing && (
               <span className="absolute right-3 bottom-3 text-[11px] text-teal-400 flex items-center gap-1.5 font-mono">
                 <span className="w-2 h-2 rounded-full bg-teal-400 animate-ping" />
-                Parsing...
+                Normalizing & Parsing...
               </span>
             )}
           </div>
@@ -206,7 +252,7 @@ export const UpaySmsModal: React.FC<UpaySmsModalProps> = ({ isOpen, onClose, onS
                   )}
                 </span>
                 <div>
-                  <h4 className="text-xs font-bold text-white">{parsed.merchant}</h4>
+                  <h4 className="text-xs font-bold text-white">{parsed.merchant || parsed.counterparty}</h4>
                   <span className="text-[10px] text-slate-400">{parsed.category}</span>
                 </div>
               </div>
@@ -225,14 +271,30 @@ export const UpaySmsModal: React.FC<UpaySmsModalProps> = ({ isOpen, onClose, onS
               </div>
             </div>
 
+            {/* Badges for MFS Provider and Bengali Processing */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <Badge variant="blue" size="sm">
+                Provider: {parsed.providerDisplayName || parsed.provider.toUpperCase()}
+              </Badge>
+              <Badge variant="emerald" size="sm">
+                Confidence: {Math.round(parsed.confidence * 100)}%
+              </Badge>
+              {parsed.hadBanglaNumerals && (
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 flex items-center gap-1 font-mono">
+                  <Languages className="w-3 h-3" />
+                  Bengali Numerals (০-৯ ➔ 0-9)
+                </span>
+              )}
+            </div>
+
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] pt-1">
               <div className="bg-black/30 p-2 rounded-xl border border-white/5">
-                <span className="text-slate-400 block text-[10px]">TrxID</span>
-                <span className="font-mono text-white font-medium">{parsed.trxId}</span>
+                <span className="text-slate-400 block text-[10px]">TrxID / TxnID</span>
+                <span className="font-mono text-white font-medium truncate block">{parsed.trxId}</span>
               </div>
               <div className="bg-black/30 p-2 rounded-xl border border-white/5">
-                <span className="text-slate-400 block text-[10px]">Method</span>
-                <span className="text-teal-300 font-medium">upay MFS</span>
+                <span className="text-slate-400 block text-[10px]">Payment Method</span>
+                <span className="text-teal-300 font-medium">{parsed.paymentMethod}</span>
               </div>
               <div className="bg-black/30 p-2 rounded-xl border border-white/5">
                 <span className="text-slate-400 block text-[10px]">Status</span>

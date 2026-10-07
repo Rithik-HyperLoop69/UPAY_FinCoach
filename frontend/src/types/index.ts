@@ -100,9 +100,33 @@ export interface FinancialSummary {
   currency: string;
 }
 
+export interface BehavioralHealthPillar {
+  name: string;
+  score: number;
+  max: number;
+  weightPercent: number;
+  status: 'EXCELLENT' | 'HEALTHY' | 'MODERATE' | 'VULNERABLE';
+  metricValue: string;
+  benchmark: string;
+  impactExplanation: string;
+}
+
 export interface HealthScoreData {
   score: number;
   tier: 'Excellent' | 'Strong' | 'Moderate' | 'Needs Attention';
+  confidenceScore?: number;
+  modelVersion?: string;
+  pillars?: {
+    incomeStability: BehavioralHealthPillar;
+    spendingDiscipline: BehavioralHealthPillar;
+    savingsBuffer: BehavioralHealthPillar;
+    debtAndCommitmentBurden: BehavioralHealthPillar;
+    budgetAdherence: BehavioralHealthPillar;
+    emergencyRunway: BehavioralHealthPillar;
+  };
+  strengths?: string[];
+  vulnerabilities?: string[];
+  actionableRecommendations?: string[];
   factors: {
     savingsBehavior: { score: number; max: number; description: string };
     budgetAdherence: { score: number; max: number; description: string };
@@ -119,6 +143,9 @@ export interface ForecastPoint {
   projectedExpense: number;
   projectedNet: number;
   projectedBalance: number;
+  p10Balance?: number;
+  p90Balance?: number;
+  varianceDelta?: number;
   scheduledEvents: string[];
 }
 
@@ -130,6 +157,19 @@ export interface ForecastResult {
   expectedMonthlyIncome: number;
   expectedMonthlyExpense: number;
   expectedMonthlyNet: number;
+  modelVersion?: string;
+  modelMetrics?: {
+    mae: number;
+    rmse: number;
+    mape: number;
+    backtestWindowMonths?: number;
+  };
+  shortfallProbability?: number;
+  quantileBounds?: {
+    p10EndingBalance: number;
+    p50EndingBalance: number;
+    p90EndingBalance: number;
+  };
   sevenDays: { points: ForecastPoint[]; totalProjectedIncome: number; totalProjectedExpense: number; endingBalance: number };
   thirtyDays: { points: ForecastPoint[]; totalProjectedIncome: number; totalProjectedExpense: number; endingBalance: number };
   ninetyDays: { points: ForecastPoint[]; totalProjectedIncome: number; totalProjectedExpense: number; endingBalance: number };
@@ -154,6 +194,59 @@ export interface ForecastResult {
     actionRecommendation: string;
   }[];
   assumptions: string[];
+}
+
+export interface DetectedAnomaly {
+  id: string;
+  transactionId?: string;
+  category: string;
+  merchant?: string;
+  amount: number;
+  expectedBaseline: number;
+  deviationRatio: number;
+  severity: 'CRITICAL' | 'MODERATE' | 'MILD';
+  anomalyType: 'AMOUNT_OUTLIER' | 'CATEGORY_SURGE' | 'VELOCITY_BURST';
+  date: string;
+  explanation: string;
+  actionAdvice: string;
+}
+
+export interface UserBehaviorProfile {
+  userId: string;
+  typicalSalaryDays: string;
+  averageDailyDiscretionaryBurn: number;
+  peakSpendingDays: string[];
+  fixedCommitmentRatio: number;
+  discretionaryRatio: number;
+  incomeStabilityIndex: number;
+  expenseVolatilityIndex: number;
+  runwayMonths: number;
+  primaryLifestyleCategory: string;
+}
+
+export interface ModelCard {
+  modelId: string;
+  name: string;
+  type: string;
+  architecture: string;
+  targetTask: string;
+  metrics: Record<string, number | string>;
+  datasetDetails: string;
+  hyperparameters: Record<string, number | string>;
+  limitations: string;
+}
+
+export interface SystemEvaluationReport {
+  evaluationDate: string;
+  environment: string;
+  models: ModelCard[];
+  aggregateSummary: {
+    totalProprietaryEngines: number;
+    forecastMape: string;
+    anomalyF1Score: string;
+    mfsExtractionAccuracy: string;
+    offlineFallbackResilience: string;
+  };
 }
 
 export interface AlertItem {

@@ -3,6 +3,8 @@ import { NotFoundError, AppError } from '../../utils/errors';
 import { UpayPaymentAdapter } from '../payments/paymentProvider';
 import prisma from '../../config/database';
 import { parseUpaySms } from './upayParser';
+import { mfsEngine } from './mfs/mfsEngine';
+import { MFSProviderName } from './mfs/mfs.types';
 
 export class TransactionService {
   private repo: TransactionRepository;
@@ -306,6 +308,75 @@ export class TransactionService {
       parsed,
       transaction: tx,
       message: `Successfully ingested ৳${parsed.amount.toLocaleString()} (${parsed.merchant}) into your ledger!`,
+    };
+  }
+
+  async parseAndIngestMfsSms(
+    userId: string,
+    smsText: string,
+    providerHint?: MFSProviderName,
+    autoSave = false
+  ) {
+    const parsed = mfsEngine.parseSms(smsText, providerHint);
+
+    // Check if duplicate trxId already exists
+    const existing = await prisma.transaction.findFirst({
+      where: {
+        userId,
+        metadata: {
+          contains: parsed.trxId,
+        },
+      },
+    });
+
+    if (existing) {
+      return {
+        alreadyExists: true,
+        parsed,
+        transaction: existing,
+        message: `Transaction with TrxID ${parsed.trxId} is already logged in your ledger.`,
+      };
+    }
+
+    if (!autoSave) {
+      return {
+        alreadyExists: false,
+        parsed,
+        message: `${parsed.providerDisplayName} SMS parsed successfully (${Math.round(parsed.confidence * 100)}% confidence). Ready to ingest.`,
+      };
+    }
+
+    const metadata = JSON.stringify({
+      mfsTrxId: parsed.trxId,
+      provider: parsed.providerDisplayName,
+      fee: parsed.fee,
+      balanceAfter: parsed.balanceAfter,
+      source: 'MFS_SMS_PARSER',
+      confidence: parsed.confidence,
+      detectedLanguage: parsed.detectedLanguage,
+      hadBanglaNumerals: parsed.hadBanglaNumerals,
+      rawSms: parsed.rawSms,
+      ingestedAt: new Date().toISOString(),
+    });
+
+    const tx = await this.repo.create({
+      userId,
+      type: parsed.type,
+      amount: parsed.amount,
+      category: parsed.category,
+      description: parsed.description,
+      date: new Date(),
+      merchant: parsed.counterparty,
+      paymentMethod: parsed.paymentMethod,
+      status: 'COMPLETED',
+      metadata,
+    });
+
+    return {
+      alreadyExists: false,
+      parsed,
+      transaction: tx,
+      message: `Successfully ingested ৳${parsed.amount.toLocaleString()} (${parsed.counterparty}) from ${parsed.providerDisplayName}!`,
     };
   }
 }

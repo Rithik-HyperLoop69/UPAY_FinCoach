@@ -4,14 +4,22 @@ import {
   CategorySpendingBreakdown,
   MonthlyTrendPoint,
   HealthScoreBreakdown,
+  DetectedAnomaly,
+  UserFinancialBehaviorProfile,
 } from './analytics.types';
+import { BehavioralHealthModel } from './behavioralHealthModel';
+import { AnomalyDetector } from './anomalyDetector';
 import prisma from '../../config/database';
 
 export class AnalyticsService {
   private repo: AnalyticsRepository;
+  private behavioralModel: BehavioralHealthModel;
+  private anomalyDetector: AnomalyDetector;
 
   constructor() {
     this.repo = new AnalyticsRepository();
+    this.behavioralModel = new BehavioralHealthModel();
+    this.anomalyDetector = new AnomalyDetector();
   }
 
   async getSummary(userId: string): Promise<FinancialSummary> {
@@ -165,91 +173,27 @@ export class AnalyticsService {
 
   async calculateHealthScore(userId: string): Promise<HealthScoreBreakdown> {
     const summary = await this.getSummary(userId);
+    const transactions = await this.repo.getTransactionsByUser(userId);
     const currentMonthKey = new Date().toISOString().slice(0, 7);
     const budget = await this.repo.getBudgetForMonth(userId, currentMonthKey);
     const goals = await this.repo.getSavingsGoals(userId);
 
-    // Factor 1: Savings Behavior (0 - 25 points)
-    // Target is 25% savings rate
-    let savingsScore = 0;
-    if (summary.monthlySavingsRate >= 30) savingsScore = 25;
-    else if (summary.monthlySavingsRate >= 20) savingsScore = 22;
-    else if (summary.monthlySavingsRate >= 15) savingsScore = 18;
-    else if (summary.monthlySavingsRate >= 10) savingsScore = 14;
-    else if (summary.monthlySavingsRate > 0) savingsScore = 8;
-    else savingsScore = 2;
-
-    // Factor 2: Budget Adherence (0 - 25 points)
-    let budgetScore = 20; // Default when no budget exceeded
-    if (budget && budget.totalLimit > 0) {
-      const utilization = (summary.monthlyExpenses / budget.totalLimit) * 100;
-      if (utilization <= 80) budgetScore = 25;
-      else if (utilization <= 95) budgetScore = 20;
-      else if (utilization <= 100) budgetScore = 15;
-      else if (utilization <= 110) budgetScore = 8;
-      else budgetScore = 3;
-    }
-
-    // Factor 3: Cash-Flow Stability (0 - 25 points)
-    // Stability based on positive net flow and expense volatility
-    let stabilityScore = 18;
-    if (summary.monthlyNetSavings > 15000) stabilityScore = 25;
-    else if (summary.monthlyNetSavings > 5000) stabilityScore = 20;
-    else if (summary.monthlyNetSavings >= 0) stabilityScore = 15;
-    else stabilityScore = 5;
-
-    // Factor 4: Goal Progress (0 - 25 points)
-    let goalScore = 15;
-    if (goals.length > 0) {
-      const avgProgress =
-        goals.reduce((acc, g) => acc + (g.targetAmount > 0 ? (g.currentAmount / g.targetAmount) * 100 : 0), 0) /
-        goals.length;
-      if (avgProgress >= 70) goalScore = 25;
-      else if (avgProgress >= 50) goalScore = 21;
-      else if (avgProgress >= 25) goalScore = 16;
-      else goalScore = 10;
-    }
-
-    const totalScore = Math.min(100, Math.round(savingsScore + budgetScore + stabilityScore + goalScore));
-
-    let tier: 'Excellent' | 'Strong' | 'Moderate' | 'Needs Attention' = 'Moderate';
-    if (totalScore >= 85) tier = 'Excellent';
-    else if (totalScore >= 70) tier = 'Strong';
-    else if (totalScore >= 50) tier = 'Moderate';
-    else tier = 'Needs Attention';
+    const breakdown = this.behavioralModel.evaluate(summary, transactions, budget, goals);
 
     // Persist calculated score to profile
-    await this.repo.updateHealthScore(userId, totalScore);
+    await this.repo.updateHealthScore(userId, breakdown.score);
 
-    return {
-      score: totalScore,
-      tier,
-      factors: {
-        savingsBehavior: {
-          score: savingsScore,
-          max: 25,
-          description: `Current savings rate of ${summary.monthlySavingsRate}%. (Healthy target: 20%+)`,
-        },
-        budgetAdherence: {
-          score: budgetScore,
-          max: 25,
-          description: budget
-            ? `Monthly budget utilization is managed within safe limits.`
-            : `No explicit limits exceeded; disciplined regular spending.`,
-        },
-        cashFlowStability: {
-          score: stabilityScore,
-          max: 25,
-          description: `Positive monthly net surplus of ৳${summary.monthlyNetSavings.toLocaleString()}.`,
-        },
-        goalProgress: {
-          score: goalScore,
-          max: 25,
-          description: `${goals.length} active savings targets being tracked with regular contributions.`,
-        },
-      },
-      disclaimer:
-        'This score is an analytical indicator calculated from your historical cash inflows, expenses, and savings consistency. It does not constitute certified investment advice.',
-    };
+    return breakdown;
+  }
+
+  async getAnomalies(userId: string): Promise<DetectedAnomaly[]> {
+    const transactions = await this.repo.getTransactionsByUser(userId);
+    return this.anomalyDetector.detectAnomalies(transactions);
+  }
+
+  async getBehaviorProfile(userId: string): Promise<UserFinancialBehaviorProfile> {
+    const summary = await this.getSummary(userId);
+    const transactions = await this.repo.getTransactionsByUser(userId);
+    return this.behavioralModel.deriveBehaviorProfile(userId, summary, transactions);
   }
 }

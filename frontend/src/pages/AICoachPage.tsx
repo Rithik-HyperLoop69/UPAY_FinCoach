@@ -11,10 +11,12 @@ import {
   TrendingUp,
   AlertTriangle,
   Lightbulb,
+  Cpu,
 } from 'lucide-react';
 import { Card, CardHeader } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
+import { ModelCardsModal } from '../components/ModelCardsModal';
 import { api } from '../api/client';
 import { formatBDT } from '../utils/formatters';
 
@@ -35,9 +37,9 @@ export const AICoachPage: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: `Hello! I am your **UPAY FinCoach**. I analyze your transaction habits, forecast future liquidity, and help you grow your savings with disciplined guidance.
+      content: `Hello! I am your **upay FinCoach**. I translate verified statistical cash-flow projections and anomaly models into plain, disciplined financial guidance.
 
-How can I help you understand your money today?`,
+How can I help you understand your cash-flow and savings trajectory today?`,
     },
   ]);
   const [inputMessage, setInputMessage] = useState(initialPrompt);
@@ -45,6 +47,7 @@ How can I help you understand your money today?`,
   const [isLoading, setIsLoading] = useState(false);
   const [contextPreview, setContextPreview] = useState<any>(null);
   const [showContextSidebar, setShowContextSidebar] = useState(false);
+  const [showModelCards, setShowModelCards] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -100,12 +103,12 @@ How can I help you understand your money today?`,
   };
 
   const samplePrompts = [
-    'How much did I spend this month?',
-    'Where am I spending the most?',
-    'Can I save more next month?',
+    'Do you detect any spending anomalies or spikes?',
+    'Explain my P10 to P90 forecast range and shortfall risk.',
+    'What are my 6 financial wellness pillar scores?',
+    'Where am I spending the most this month?',
+    'Can I safely save more next month?',
     'What could cause a cash shortage next month?',
-    'How close am I to my savings goal?',
-    'What does my cash-flow forecast look like?',
   ];
 
   return (
@@ -113,46 +116,57 @@ How can I help you understand your money today?`,
       {/* Main Chat Stream */}
       <div className="flex-1 flex flex-col glass-panel rounded-3xl overflow-hidden border border-slate-800">
         {/* Chat Header */}
-        <div className="p-4 border-b border-slate-800 bg-slate-900/80 flex items-center justify-between">
+        <div className="p-4 border-b border-slate-800 bg-slate-900/80 flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-teal-500 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-teal-500/20">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="font-bold text-white text-sm">upay FinCoach AI</h3>
                 <Badge variant="emerald" size="sm">
-                  Active
+                  Grounded in Holt-Winters ML
                 </Badge>
               </div>
               <p className="text-[11px] text-slate-400">
-                Grounded in your authenticated transaction records
+                Proprietary Statistical Models + Gemini 2.5 Flash Explainer
               </p>
             </div>
           </div>
 
-          <button
-            onClick={() => setShowContextSidebar(!showContextSidebar)}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 text-xs flex items-center gap-1.5 transition-colors"
-          >
-            <Info className="w-4 h-4 text-blue-400" />
-            <span className="hidden sm:inline">Inspect AI Context</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowModelCards(true)}
+              leftIcon={<Cpu className="w-3.5 h-3.5 text-emerald-400" />}
+              className="text-xs border-emerald-500/30 text-emerald-300 hover:bg-emerald-950/40"
+            >
+              Model Specs & ML
+            </Button>
+            <button
+              onClick={() => setShowContextSidebar(!showContextSidebar)}
+              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 text-xs flex items-center gap-1.5 transition-colors"
+            >
+              <Info className="w-4 h-4 text-blue-400" />
+              <span className="hidden sm:inline">Inspect AI Context</span>
+            </button>
+          </div>
         </div>
 
-        {/* Messages List */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
-          {messages.map((msg, index) => (
+        {/* Messages Stream */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
+          {messages.map((msg, i) => (
             <div
-              key={index}
-              className={`flex items-start gap-3 ${
-                msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'
+              key={i}
+              className={`flex gap-3.5 max-w-3xl ${
+                msg.role === 'user' ? 'ml-auto flex-row-reverse' : ''
               }`}
             >
               <div
                 className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
                   msg.role === 'user'
-                    ? 'bg-blue-600 text-white font-bold'
+                    ? 'bg-blue-600 text-white'
                     : 'bg-gradient-to-tr from-teal-500 to-blue-600 text-white'
                 }`}
               >
@@ -160,56 +174,66 @@ How can I help you understand your money today?`,
               </div>
 
               <div
-                className={`max-w-2xl rounded-2xl p-4 text-xs leading-relaxed space-y-3 ${
+                className={`p-4 rounded-2xl text-xs leading-relaxed space-y-2 ${
                   msg.role === 'user'
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'bg-slate-900 border border-slate-800 text-slate-200'
+                    ? 'bg-blue-600 text-white rounded-tr-none'
+                    : 'bg-slate-900/90 text-slate-200 border border-slate-800 rounded-tl-none shadow-md'
                 }`}
               >
-                {/* Render assistant structured breakdown if present */}
-                {msg.observed && (
-                  <div className="space-y-2">
-                    <div className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800 text-slate-300">
-                      <span className="font-bold text-teal-300 flex items-center gap-1 mb-1">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        Observed Facts:
-                      </span>
-                      <p>{msg.observed}</p>
-                    </div>
+                {msg.role === 'user' ? (
+                  <p>{msg.content}</p>
+                ) : (
+                  <div>
+                    {msg.observed && msg.forecast && msg.suggestion ? (
+                      <div className="space-y-3">
+                        <div className="p-2.5 rounded-xl bg-slate-950/50 border border-slate-800/80">
+                          <span className="font-bold text-teal-300 block mb-1 flex items-center gap-1.5">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-teal-400" />
+                            Observed Records:
+                          </span>
+                          <p className="text-slate-300 leading-relaxed">{msg.observed}</p>
+                        </div>
 
-                    <div className="p-2.5 rounded-xl bg-blue-950/40 border border-blue-900/50 text-slate-300">
-                      <span className="font-bold text-blue-300 flex items-center gap-1 mb-1">
-                        <TrendingUp className="w-3.5 h-3.5" />
-                        Cash-Flow Forecast:
-                      </span>
-                      <p>{msg.forecast}</p>
-                    </div>
+                        <div className="p-2.5 rounded-xl bg-slate-950/50 border border-slate-800/80">
+                          <span className="font-bold text-blue-300 block mb-1 flex items-center gap-1.5">
+                            <TrendingUp className="w-3.5 h-3.5 text-blue-400" />
+                            Model Projections:
+                          </span>
+                          <p className="text-slate-300 leading-relaxed">{msg.forecast}</p>
+                        </div>
 
-                    <div className="p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-900/50 text-slate-300">
-                      <span className="font-bold text-emerald-300 flex items-center gap-1 mb-1">
-                        <Lightbulb className="w-3.5 h-3.5" />
-                        Actionable Suggestion:
-                      </span>
-                      <p>{msg.suggestion}</p>
-                    </div>
+                        <div className="p-2.5 rounded-xl bg-slate-950/50 border border-slate-800/80">
+                          <span className="font-bold text-emerald-300 block mb-1 flex items-center gap-1.5">
+                            <Lightbulb className="w-3.5 h-3.5 text-emerald-400" />
+                            Proactive Coaching Action:
+                          </span>
+                          <p className="text-slate-300 leading-relaxed">{msg.suggestion}</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="whitespace-pre-line text-slate-200">{msg.content}</div>
+                    )}
+
+                    {msg.provider && (
+                      <div className="mt-2 pt-2 border-t border-slate-800 flex items-center justify-between text-[10px] text-slate-500 font-mono">
+                        <span>Engine: {msg.provider === 'gemini' ? 'Gemini 2.5 Flash Explainer' : 'Deterministic Statistical Fallback'}</span>
+                        <span className="text-emerald-400">Zero Hallucination Grounded</span>
+                      </div>
+                    )}
                   </div>
-                )}
-
-                {/* Plain Markdown/Text rendering */}
-                {!msg.observed && (
-                  <div className="whitespace-pre-wrap font-sans">{msg.content}</div>
                 )}
               </div>
             </div>
           ))}
 
           {isLoading && (
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center">
-                <Bot className="w-4 h-4 animate-pulse" />
+            <div className="flex gap-3.5 max-w-xl">
+              <div className="w-8 h-8 rounded-xl bg-teal-500/20 text-teal-300 flex items-center justify-center shrink-0">
+                <Bot className="w-4 h-4 animate-spin" />
               </div>
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl px-4 py-3 text-xs text-slate-400 animate-pulse">
-                Analyzing recent cash flow and synthesizing coaching recommendations...
+              <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-xs text-slate-400 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
+                Analyzing statistical projections & formulating coaching response...
               </div>
             </div>
           )}
@@ -217,21 +241,23 @@ How can I help you understand your money today?`,
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Prompt Chips Bar */}
-        <div className="p-3 border-t border-slate-800 bg-slate-950/40 flex items-center gap-2 overflow-x-auto">
-          {samplePrompts.map((p) => (
-            <button
-              key={p}
-              onClick={() => handleSend(p)}
-              className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[11px] text-slate-300 hover:text-white whitespace-nowrap transition-colors"
-            >
-              {p}
-            </button>
-          ))}
-        </div>
+        {/* Suggestion Prompts & Input Bar */}
+        <div className="p-4 border-t border-slate-800 bg-slate-900/60 space-y-3">
+          {/* Quick Prompts */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+            {samplePrompts.map((prompt, i) => (
+              <button
+                key={i}
+                onClick={() => handleSend(prompt)}
+                disabled={isLoading}
+                className="text-[11px] px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white whitespace-nowrap transition-colors border border-slate-700/50 cursor-pointer disabled:opacity-50"
+              >
+                {prompt}
+              </button>
+            ))}
+          </div>
 
-        {/* Input Bar */}
-        <div className="p-4 border-t border-slate-800 bg-slate-900/80">
+          {/* Input Box */}
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -241,7 +267,7 @@ How can I help you understand your money today?`,
           >
             <input
               type="text"
-              placeholder="Ask anything about your income, spending, budget, or forecast..."
+              placeholder="Ask anything about your income, spending, forecast quantiles, or anomalies..."
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               className="flex-1 px-4 py-3 bg-slate-950 border border-slate-800 rounded-2xl text-white placeholder-slate-500 text-xs focus:outline-none focus:border-blue-500"
@@ -269,25 +295,49 @@ How can I help you understand your money today?`,
             </span>
             <button
               onClick={() => setShowContextSidebar(false)}
-              className="text-xs text-slate-500 hover:text-white"
+              className="text-xs text-slate-500 hover:text-white cursor-pointer"
             >
               Close
             </button>
           </div>
 
           <p className="text-[11px] text-slate-400 leading-normal">
-            For maximum privacy and anti-hallucination, the AI does not query your database
-            directly. It only receives this sanitized snapshot:
+            For maximum privacy and mathematical rigor, Gemini never queries your raw database.
+            It receives only this verified statistical intelligence snapshot:
           </p>
 
           {contextPreview && (
             <div className="space-y-3 text-xs">
               <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800">
-                <span className="text-slate-400 block text-[10px]">Monthly Income / Expense</span>
+                <span className="text-slate-400 block text-[10px]">Monthly Inflow / Outflow</span>
                 <span className="font-mono font-bold text-white">
                   {formatBDT(contextPreview.monthlyIncome)} / {formatBDT(contextPreview.monthlyExpenses)}
                 </span>
               </div>
+
+              {contextPreview.statisticalForecast && (
+                <div className="p-3 rounded-xl bg-slate-950/60 border border-blue-500/20">
+                  <span className="text-slate-400 block text-[10px]">Holt-Winters Statistical Forecast</span>
+                  <span className="font-mono font-bold text-blue-300">
+                    Backtest MAPE: {contextPreview.statisticalForecast.mape}%
+                  </span>
+                  <div className="text-[10px] text-slate-400 mt-1">
+                    P10: {formatBDT(contextPreview.statisticalForecast.quantileBounds.p10EndingBalance)}
+                  </div>
+                  <div className="text-[10px] text-slate-400">
+                    P90: {formatBDT(contextPreview.statisticalForecast.quantileBounds.p90EndingBalance)}
+                  </div>
+                </div>
+              )}
+
+              {contextPreview.anomalies && (
+                <div className="p-3 rounded-xl bg-slate-950/60 border border-amber-500/20">
+                  <span className="text-slate-400 block text-[10px]">Statistical Anomalies</span>
+                  <span className="font-mono font-bold text-amber-300">
+                    {contextPreview.anomalies.totalDetected} Outliers Flagged (Z-Score &gt; 2.2)
+                  </span>
+                </div>
+              )}
 
               <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800">
                 <span className="text-slate-400 block text-[10px]">Health Score</span>
@@ -299,7 +349,7 @@ How can I help you understand your money today?`,
               <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800">
                 <span className="text-slate-400 block text-[10px]">Top Spending Areas</span>
                 <ul className="mt-1 space-y-1 text-slate-300">
-                  {contextPreview.topSpendingCategories.map((c: any) => (
+                  {contextPreview.topSpendingCategories?.map((c: any) => (
                     <li key={c.category} className="flex justify-between">
                       <span>{c.category}</span>
                       <span className="font-mono font-semibold">{formatBDT(c.amount)}</span>
@@ -311,13 +361,15 @@ How can I help you understand your money today?`,
               <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800">
                 <span className="text-slate-400 block text-[10px]">30-Day Forecast Net</span>
                 <span className="font-mono font-bold text-teal-300">
-                  +{formatBDT(contextPreview.forecast.projectedNetCashFlow)}
+                  +{formatBDT(contextPreview.forecast?.projectedNetCashFlow)}
                 </span>
               </div>
             </div>
           )}
         </div>
       )}
+
+      <ModelCardsModal isOpen={showModelCards} onClose={() => setShowModelCards(false)} />
     </div>
   );
 };

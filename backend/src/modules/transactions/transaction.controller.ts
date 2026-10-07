@@ -84,5 +84,21 @@ export class TransactionController {
       next(error);
     }
   };
+
+  parseMfsSms = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (!req.user) throw new UnauthorizedError();
+      const { smsText, providerHint, autoSave } = req.body;
+      const result = await this.service.parseAndIngestMfsSms(
+        req.user.userId,
+        smsText,
+        providerHint,
+        autoSave
+      );
+      return sendSuccess(res, result, result.message);
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 

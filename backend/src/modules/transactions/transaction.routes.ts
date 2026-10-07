@@ -7,6 +7,7 @@ import {
   updateTransactionSchema,
   queryTransactionsSchema,
   parseUpaySmsSchema,
+  parseMfsSmsSchema,
 } from './transaction.validation';
 
 const router = Router();
@@ -17,9 +18,10 @@ router.use(authenticateToken); // Protected routes
 router.get('/', validateQuery(queryTransactionsSchema), controller.getTransactions);
 router.post('/', validateBody(createTransactionSchema), controller.createTransaction);
 
-// upay Auto-Tracking & SMS Ingestion endpoints
+// MFS & upay Auto-Tracking & SMS Ingestion endpoints
 router.post('/upay/sync', controller.syncUpayWallet);
 router.post('/upay/parse-sms', validateBody(parseUpaySmsSchema), controller.parseUpaySms);
+router.post('/mfs/parse-sms', validateBody(parseMfsSmsSchema), controller.parseMfsSms);
 
 router.get('/:id', controller.getTransactionById);
 router.put('/:id', validateBody(updateTransactionSchema), controller.updateTransaction);

@@ -17,6 +17,42 @@ export interface StructuredFinancialContext {
     projectedNetCashFlow: number;
     confidenceTier: string;
   };
+  statisticalForecast?: {
+    modelName: string;
+    mape: number;
+    shortfallProbability: number;
+    quantileBounds: {
+      p10EndingBalance: number;
+      p50EndingBalance: number;
+      p90EndingBalance: number;
+    };
+  };
+  anomalies?: {
+    totalDetected: number;
+    highSeverityCount: number;
+    recentAnomalies: {
+      category: string;
+      amount: number;
+      severity: string;
+      reason: string;
+    }[];
+  };
+  behaviorProfile?: {
+    persona?: string;
+    summary?: string;
+    primaryStrength?: string;
+    topRisk?: string;
+    primaryLifestyleCategory?: string;
+    peakSpendingDays?: string[];
+    runwayMonths?: number;
+    incomeStabilityIndex?: number;
+    pillars?: {
+      name: string;
+      score: number;
+      rating: string;
+      weight: number;
+    }[];
+  };
   recurringObligations: {
     name: string;
     amount: number;
@@ -42,6 +78,11 @@ export interface CoachResponse {
   observed: string;
   forecast: string;
   suggestion: string;
-  provider: 'gemini' | 'deterministic-fallback';
+  provider: 'gemini' | 'deterministic-fallback' | 'cached';
   contextSnapshot: StructuredFinancialContext;
+  modelMetrics?: {
+    tokensEstimated?: number;
+    latencyMs?: number;
+    cached?: boolean;
+  };
 }

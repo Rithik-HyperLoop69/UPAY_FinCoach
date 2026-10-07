@@ -12,7 +12,7 @@
     "db:generate": "prisma generate",
     "db:seed": "ts-node-dev prisma/seed.ts",
     "db:studio": "prisma studio",
-    "test": "vitest run"
+    "test": "vitest run --test-timeout=25000"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",

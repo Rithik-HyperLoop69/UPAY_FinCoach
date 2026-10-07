@@ -15,6 +15,7 @@ import {
   Calendar,
   Zap,
   CheckCircle2,
+  Cpu,
 } from 'lucide-react';
 import { Card, CardHeader } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
@@ -24,6 +25,7 @@ import TiltedCard from '../components/ui/TiltedCard';
 import BorderGlow from '../components/ui/BorderGlow';
 import { CashFlowChart } from '../components/charts/CashFlowChart';
 import { SpendingPieChart } from '../components/charts/SpendingPieChart';
+import { ModelCardsModal } from '../components/ModelCardsModal';
 import { api } from '../api/client';
 import {
   FinancialSummary,
@@ -31,6 +33,8 @@ import {
   ForecastResult,
   AlertItem,
   SavingsGoal,
+  DetectedAnomaly,
+  UserBehaviorProfile,
 } from '../types';
 import { formatBDT, formatPercentage } from '../utils/formatters';
 import { useAuth } from '../context/AuthContext';
@@ -45,6 +49,9 @@ export const DashboardPage: React.FC = () => {
   const [forecast, setForecast] = useState<ForecastResult | null>(null);
   const [goals, setGoals] = useState<SavingsGoal[]>([]);
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
+  const [anomalies, setAnomalies] = useState<DetectedAnomaly[]>([]);
+  const [behaviorProfile, setBehaviorProfile] = useState<UserBehaviorProfile | null>(null);
+  const [showModelCards, setShowModelCards] = useState<boolean>(false);
   const [horizon, setHorizon] = useState<'7D' | '30D' | '90D'>('30D');
   const [isLoading, setIsLoading] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -67,12 +74,14 @@ export const DashboardPage: React.FC = () => {
 
   const loadDashboardData = async () => {
     try {
-      const [sumRes, healthRes, spendRes, foreRes, goalsRes] = await Promise.all([
+      const [sumRes, healthRes, spendRes, foreRes, goalsRes, anomRes, profileRes] = await Promise.all([
         api.get<FinancialSummary>('/analytics/summary'),
         api.get<HealthScoreData>('/analytics/health-score'),
         api.get<any[]>('/analytics/spending-breakdown'),
         api.get<ForecastResult>('/forecast'),
         api.get<SavingsGoal[]>('/goals'),
+        api.get<DetectedAnomaly[]>('/analytics/anomalies').catch(() => []),
+        api.get<UserBehaviorProfile>('/analytics/behavior-profile').catch(() => null),
       ]);
 
       setSummary(sumRes);
@@ -80,6 +89,8 @@ export const DashboardPage: React.FC = () => {
       setSpending(spendRes);
       setForecast(foreRes);
       setGoals(goalsRes);
+      if (Array.isArray(anomRes)) setAnomalies(anomRes);
+      if (profileRes) setBehaviorProfile(profileRes);
 
       // Check alerts
       const alertsRes = await api.get<AlertItem[]>('/alerts').catch(() => []);
@@ -166,6 +177,16 @@ export const DashboardPage: React.FC = () => {
                   <Button
                     variant="outline"
                     size="md"
+                    onClick={() => setShowModelCards(true)}
+                    leftIcon={<Cpu className="w-4 h-4 text-emerald-400" />}
+                    className="border-emerald-500/40 text-emerald-300 hover:bg-emerald-950/40 cursor-pointer"
+                  >
+                    Model Specs & ML
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="md"
                     onClick={handleSyncWallet}
                     isLoading={isSyncing}
                     leftIcon={<Zap className="w-4 h-4 text-teal-400" />}
@@ -188,6 +209,36 @@ export const DashboardPage: React.FC = () => {
             </div>
           </BorderGlow>
         </TiltedCard>
+
+        {/* Statistical Anomalies Alert Banner */}
+        {anomalies.length > 0 && (
+          <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-xl bg-amber-500/20 text-amber-300 shrink-0">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-amber-100 text-sm">
+                    {anomalies.length} Unusual Spending Outlier{anomalies.length > 1 ? 's' : ''} Detected
+                  </span>
+                  <Badge variant="amber" size="sm">Z-Score & Tukey Filter</Badge>
+                </div>
+                <p className="text-slate-300 mt-0.5">
+                  Top outlier: {anomalies[0].category} ({formatBDT(anomalies[0].amount)}) — {anomalies[0].explanation}.
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/analytics')}
+              className="border-amber-500/40 text-amber-300 hover:bg-amber-950/40 shrink-0"
+            >
+              Inspect Outliers
+            </Button>
+          </div>
+        )}
 
         {/* Sync Notification Banner */}
         {syncNotice && (
@@ -456,12 +507,22 @@ export const DashboardPage: React.FC = () => {
             <CashFlowChart data={chartPoints} height={250} />
           </div>
 
-          <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
-            <span className="text-slate-400">
-              Confidence Score:{' '}
-              <strong className="text-emerald-400">{forecast?.confidenceScore}%</strong> (
-              {forecast?.confidenceTier})
-            </span>
+          <div className="mt-4 pt-3 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-slate-400">
+                Confidence: <strong className="text-emerald-400">{forecast?.confidenceScore}%</strong> ({forecast?.confidenceTier})
+              </span>
+              {forecast?.modelMetrics && (
+                <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-300 border border-blue-500/20 text-[11px] font-mono">
+                  Holt-Winters MAPE: {forecast.modelMetrics.mape}%
+                </span>
+              )}
+              {forecast?.quantileBounds && (
+                <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 text-[11px]">
+                  P10–P90: {formatBDT(forecast.quantileBounds.p10EndingBalance)} – {formatBDT(forecast.quantileBounds.p90EndingBalance)}
+                </span>
+              )}
+            </div>
             <Button
               variant="ghost"
               size="sm"
@@ -622,6 +683,8 @@ export const DashboardPage: React.FC = () => {
           ))}
         </div>
       </Card>
+
+      <ModelCardsModal isOpen={showModelCards} onClose={() => setShowModelCards(false)} />
     </div>
   );
 };

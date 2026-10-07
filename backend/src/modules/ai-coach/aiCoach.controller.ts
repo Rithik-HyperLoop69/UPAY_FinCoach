@@ -59,4 +59,14 @@ export class AICoachController {
       next(error);
     }
   };
+
+  getUsageMetrics = async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { aiUsageManager } = await import('./aiUsageManager');
+      const metrics = aiUsageManager.getMetrics();
+      return sendSuccess(res, metrics, 'AI coach telemetry and usage metrics retrieved');
+    } catch (error) {
+      next(error);
+    }
+  };
 }

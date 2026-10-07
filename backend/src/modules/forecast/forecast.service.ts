@@ -1,6 +1,6 @@
 import { ForecastRepository } from './forecast.repository';
 import { ForecastEngine } from './engines/forecastEngine.interface';
-import { BasicForecastEngine } from './engines/basicForecastEngine';
+import { AdaptiveForecastingEngine } from './engines/adaptiveForecastEngine';
 import { ForecastResult } from './forecast.types';
 
 export class ForecastService {
@@ -9,7 +9,7 @@ export class ForecastService {
 
   constructor(engine?: ForecastEngine) {
     this.repo = new ForecastRepository();
-    this.engine = engine || new BasicForecastEngine();
+    this.engine = engine || new AdaptiveForecastingEngine();
   }
 
   async getForecast(userId: string): Promise<ForecastResult> {

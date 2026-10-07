@@ -10,12 +10,14 @@ import {
   Clock,
   ArrowRight,
   Info,
+  Cpu,
 } from 'lucide-react';
 import { Card, CardHeader } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { CashFlowChart } from '../components/charts/CashFlowChart';
+import { ModelCardsModal } from '../components/ModelCardsModal';
 import { api } from '../api/client';
 import { ForecastResult, ForecastPoint } from '../types';
 import { formatBDT, formatDate } from '../utils/formatters';
@@ -23,6 +25,7 @@ import { formatBDT, formatDate } from '../utils/formatters';
 export const ForecastPage: React.FC = () => {
   const [forecast, setForecast] = useState<ForecastResult | null>(null);
   const [horizon, setHorizon] = useState<'7D' | '30D' | '90D'>('30D');
+  const [showModelCards, setShowModelCards] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
@@ -86,7 +89,16 @@ export const ForecastPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowModelCards(true)}
+            leftIcon={<Cpu className="w-3.5 h-3.5 text-emerald-400" />}
+            className="border-emerald-500/40 text-emerald-300 hover:bg-emerald-950/40 cursor-pointer"
+          >
+            Model Specs & ML
+          </Button>
           <Button
             variant="outline"
             size="sm"
@@ -132,6 +144,68 @@ export const ForecastPage: React.FC = () => {
           </p>
           <p className="text-[11px] text-slate-400 mt-1">after {horizon} cash movement</p>
         </Card>
+      </div>
+
+      {/* Statistical Quantile Bounds & Backtesting Architecture Card */}
+      <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-700/80 shadow-xl space-y-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+          <div className="flex items-center gap-2">
+            <span className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <TrendingUp className="w-4 h-4" />
+            </span>
+            <div>
+              <h3 className="text-sm font-bold text-white">Statistical Model Architecture & Quantile Bounds (30-Day)</h3>
+              <p className="text-[11px] text-slate-400">
+                Holt-Winters Double Exponential Smoothing (Level α=0.4, Trend β=0.2) with 1.28-Sigma Variance Bands
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {forecast?.modelMetrics && (
+              <span className="text-xs font-mono px-2.5 py-1 rounded-lg bg-blue-500/15 text-blue-300 border border-blue-500/30">
+                Backtest MAPE: {forecast.modelMetrics.mape}%
+              </span>
+            )}
+            <Badge variant={(forecast?.shortfallProbability || 0) > 0.4 ? 'rose' : (forecast?.shortfallProbability || 0) > 0.15 ? 'amber' : 'emerald'} size="sm">
+              Shortfall Risk: {Math.round((forecast?.shortfallProbability || 0) * 100)}%
+            </Badge>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+          <div className="p-3 rounded-xl bg-slate-950/60 border border-rose-500/20">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-rose-400 font-medium">P10 Pessimistic (Low Variance)</span>
+              <span className="text-[10px] text-slate-500 font-mono">10th Percentile</span>
+            </div>
+            <p className="text-lg font-bold font-mono text-white mt-1">
+              {formatBDT(forecast?.quantileBounds?.p10EndingBalance ?? endingBalance)}
+            </p>
+            <span className="text-[10px] text-slate-400 mt-0.5 block">Stress-tested downside cash burn</span>
+          </div>
+
+          <div className="p-3 rounded-xl bg-slate-950/60 border border-emerald-500/30">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-emerald-400 font-medium">P50 Expected Baseline</span>
+              <span className="text-[10px] text-slate-500 font-mono">Median Estimate</span>
+            </div>
+            <p className="text-lg font-bold font-mono text-emerald-300 mt-1">
+              {formatBDT(forecast?.quantileBounds?.p50EndingBalance ?? endingBalance)}
+            </p>
+            <span className="text-[10px] text-slate-400 mt-0.5 block">Holt-Winters smooth trend extrapolation</span>
+          </div>
+
+          <div className="p-3 rounded-xl bg-slate-950/60 border border-blue-500/20">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-blue-400 font-medium">P90 Optimistic (Controlled Burn)</span>
+              <span className="text-[10px] text-slate-500 font-mono">90th Percentile</span>
+            </div>
+            <p className="text-lg font-bold font-mono text-white mt-1">
+              {formatBDT(forecast?.quantileBounds?.p90EndingBalance ?? endingBalance)}
+            </p>
+            <span className="text-[10px] text-slate-400 mt-0.5 block">High discretionary discipline buffer</span>
+          </div>
+        </div>
       </div>
 
       {/* Cash Flow Risk Alerts */}
@@ -321,6 +395,8 @@ export const ForecastPage: React.FC = () => {
           </div>
         </Card>
       </div>
+
+      <ModelCardsModal isOpen={showModelCards} onClose={() => setShowModelCards(false)} />
     </div>
   );
 };

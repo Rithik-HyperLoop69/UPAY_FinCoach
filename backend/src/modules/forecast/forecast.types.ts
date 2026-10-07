@@ -18,6 +18,16 @@ export interface ForecastPointItem {
   projectedNet: number;
   projectedBalance: number;
   scheduledEvents: string[];
+  p10Balance?: number;
+  p90Balance?: number;
+}
+
+export interface ModelAccuracyMetrics {
+  mae: number;   // Mean Absolute Error in BDT
+  rmse: number;  // Root Mean Squared Error in BDT
+  mape: number;  // Mean Absolute Percentage Error in %
+  backtestWindowMonths: number;
+  dataPointsUsed: number;
 }
 
 export interface CashFlowRisk {
@@ -39,6 +49,14 @@ export interface ForecastResult {
   expectedMonthlyIncome: number;
   expectedMonthlyExpense: number;
   expectedMonthlyNet: number;
+  modelVersion?: string;
+  modelMetrics?: ModelAccuracyMetrics;
+  shortfallProbability?: number; // 0.0 - 1.0
+  quantileBounds?: {
+    p10EndingBalance: number; // Conservative
+    p50EndingBalance: number; // Expected median
+    p90EndingBalance: number; // Stressed/volatile
+  };
   sevenDays: {
     points: ForecastPointItem[];
     totalProjectedIncome: number;

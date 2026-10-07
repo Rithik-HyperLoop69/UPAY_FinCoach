@@ -36,3 +36,10 @@ export const parseUpaySmsSchema = z.object({
   autoSave: z.boolean().optional().default(false),
 });
 
+export const parseMfsSmsSchema = z.object({
+  smsText: z.string().min(5, 'SMS text is required'),
+  providerHint: z.enum(['upay', 'bkash', 'nagad', 'rocket', 'cellfin', 'generic']).optional(),
+  autoSave: z.boolean().optional().default(false),
+});
+
+

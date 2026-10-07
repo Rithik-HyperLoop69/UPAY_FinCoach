@@ -12,5 +12,6 @@ router.post('/chat', aiLimiter, controller.chat);
 router.get('/conversations', controller.getConversations);
 router.get('/conversations/:id', controller.getConversationMessages);
 router.get('/context-preview', controller.getContextPreview);
+router.get('/usage', controller.getUsageMetrics);
 
 export default router;

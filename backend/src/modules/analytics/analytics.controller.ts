@@ -50,4 +50,44 @@ export class AnalyticsController {
       next(error);
     }
   };
+
+  getAnomalies = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (!req.user) throw new UnauthorizedError();
+      const anomalies = await this.service.getAnomalies(req.user.userId);
+      return sendSuccess(res, anomalies, 'Statistical transaction anomalies audited');
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getBehaviorProfile = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (!req.user) throw new UnauthorizedError();
+      const profile = await this.service.getBehaviorProfile(req.user.userId);
+      return sendSuccess(res, profile, 'User financial behavior profile generated');
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getEvaluationReport = async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { evaluationService } = await import('./evaluationService');
+      const report = evaluationService.getSystemEvaluationReport();
+      return sendSuccess(res, report, 'AI/ML system evaluation benchmark report retrieved');
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getModelCards = async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { evaluationService } = await import('./evaluationService');
+      const cards = evaluationService.getModelCards();
+      return sendSuccess(res, cards, 'Model cards registry retrieved');
+    } catch (error) {
+      next(error);
+    }
+  };
 }

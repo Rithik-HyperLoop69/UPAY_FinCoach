@@ -259,3 +259,61 @@ export interface AlertItem {
   actionUrl?: string;
   createdAt: string;
 }
+
+export interface ProactiveNudge {
+  id: string;
+  type:
+    | 'FEE_OPTIMIZATION'
+    | 'WEEKEND_SURGE_PREEMPTION'
+    | 'LIQUIDITY_SHORTFALL_RISK'
+    | 'BUDGET_PACING_SPIKE'
+    | 'SAVINGS_GOAL_ACCELERATION'
+    | 'UNUSUAL_OUTLIER_ALERT';
+  priority: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'INFO';
+  title: string;
+  message: string;
+  actionLabel: string;
+  actionRoute: string;
+  potentialSavingsBDT?: number;
+  confidenceScore: number;
+  generatedAt: string;
+}
+
+export interface PilotImpactReport {
+  publishedDate: string;
+  location: string;
+  survey: {
+    sampleSize: number;
+    demographics: {
+      segment: string;
+      percentage: number;
+      description: string;
+    }[];
+    keyPainPoints: {
+      finding: string;
+      prevalence: number;
+      localContext: string;
+    }[];
+  };
+  pilotStudy: {
+    cohortSize: number;
+    studyDurationDays: number;
+    prePostComparison: {
+      metricName: string;
+      baselinePreFinCoach: string;
+      postFinCoachResult: string;
+      percentageChange: string;
+      statisticalSignificance: string;
+    }[];
+    retentionAndEngagement: {
+      metric: string;
+      value: string;
+    }[];
+    userSavingsImpact: {
+      medianMonthlyFeeSavedBDT: number;
+      medianEndMonthBufferIncreaseBDT: number;
+      overdraftIncidentReductionPct: number;
+    };
+  };
+  methodologyNote: string;
+}

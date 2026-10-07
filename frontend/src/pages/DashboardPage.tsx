@@ -16,6 +16,8 @@ import {
   Zap,
   CheckCircle2,
   Cpu,
+  Lightbulb,
+  CreditCard,
 } from 'lucide-react';
 import { Card, CardHeader } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
@@ -26,6 +28,7 @@ import BorderGlow from '../components/ui/BorderGlow';
 import { CashFlowChart } from '../components/charts/CashFlowChart';
 import { SpendingPieChart } from '../components/charts/SpendingPieChart';
 import { ModelCardsModal } from '../components/ModelCardsModal';
+import { UpaySandboxGatewayModal } from '../components/transactions/UpaySandboxGatewayModal';
 import { api } from '../api/client';
 import {
   FinancialSummary,
@@ -35,6 +38,7 @@ import {
   SavingsGoal,
   DetectedAnomaly,
   UserBehaviorProfile,
+  ProactiveNudge,
 } from '../types';
 import { formatBDT, formatPercentage } from '../utils/formatters';
 import { useAuth } from '../context/AuthContext';
@@ -48,10 +52,12 @@ export const DashboardPage: React.FC = () => {
   const [spending, setSpending] = useState<any[]>([]);
   const [forecast, setForecast] = useState<ForecastResult | null>(null);
   const [goals, setGoals] = useState<SavingsGoal[]>([]);
+  const [nudges, setNudges] = useState<ProactiveNudge[]>([]);
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
   const [anomalies, setAnomalies] = useState<DetectedAnomaly[]>([]);
   const [behaviorProfile, setBehaviorProfile] = useState<UserBehaviorProfile | null>(null);
   const [showModelCards, setShowModelCards] = useState<boolean>(false);
+  const [showSandboxModal, setShowSandboxModal] = useState<boolean>(false);
   const [horizon, setHorizon] = useState<'7D' | '30D' | '90D'>('30D');
   const [isLoading, setIsLoading] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -74,7 +80,7 @@ export const DashboardPage: React.FC = () => {
 
   const loadDashboardData = async () => {
     try {
-      const [sumRes, healthRes, spendRes, foreRes, goalsRes, anomRes, profileRes] = await Promise.all([
+      const [sumRes, healthRes, spendRes, foreRes, goalsRes, anomRes, profileRes, nudgesRes] = await Promise.all([
         api.get<FinancialSummary>('/analytics/summary'),
         api.get<HealthScoreData>('/analytics/health-score'),
         api.get<any[]>('/analytics/spending-breakdown'),
@@ -82,6 +88,7 @@ export const DashboardPage: React.FC = () => {
         api.get<SavingsGoal[]>('/goals'),
         api.get<DetectedAnomaly[]>('/analytics/anomalies').catch(() => []),
         api.get<UserBehaviorProfile>('/analytics/behavior-profile').catch(() => null),
+        api.get<ProactiveNudge[]>('/coach/nudges').catch(() => []),
       ]);
 
       setSummary(sumRes);
@@ -91,6 +98,7 @@ export const DashboardPage: React.FC = () => {
       setGoals(goalsRes);
       if (Array.isArray(anomRes)) setAnomalies(anomRes);
       if (profileRes) setBehaviorProfile(profileRes);
+      if (Array.isArray(nudgesRes)) setNudges(nudgesRes);
 
       // Check alerts
       const alertsRes = await api.get<AlertItem[]>('/alerts').catch(() => []);
@@ -196,6 +204,16 @@ export const DashboardPage: React.FC = () => {
                   </Button>
 
                   <Button
+                    variant="outline"
+                    size="md"
+                    onClick={() => setShowSandboxModal(true)}
+                    leftIcon={<CreditCard className="w-4 h-4 text-sky-400" />}
+                    className="border-sky-500/40 text-sky-300 hover:bg-sky-950/40 cursor-pointer"
+                  >
+                    Upay Sandbox Gateway
+                  </Button>
+
+                  <Button
                     variant="upay"
                     size="md"
                     onClick={() => navigate('/coach')}
@@ -209,6 +227,73 @@ export const DashboardPage: React.FC = () => {
             </div>
           </BorderGlow>
         </TiltedCard>
+
+        {/* Proactive Financial Coaching Nudges */}
+        {nudges.length > 0 && (
+          <div className="p-5 rounded-2xl bg-gradient-to-r from-emerald-950/40 via-slate-900 to-slate-900 border border-emerald-500/30 shadow-xl space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400">
+                  <Lightbulb className="w-4 h-4" />
+                </div>
+                <h3 className="text-sm font-bold text-white tracking-wide">
+                  Proactive Financial Coaching Nudges
+                </h3>
+                <Badge variant="emerald" size="sm">
+                  Active Intelligent Coaching
+                </Badge>
+              </div>
+              <span className="text-[11px] text-slate-400 hidden sm:inline">
+                Automated recommendations evaluated from your local ledger
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+              {nudges.map((nudge) => (
+                <div
+                  key={nudge.id}
+                  className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-emerald-500/40 transition-all flex flex-col justify-between space-y-2.5"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-semibold text-white truncate">{nudge.title}</span>
+                      <Badge
+                        variant={
+                          nudge.priority === 'CRITICAL'
+                            ? 'rose'
+                            : nudge.priority === 'HIGH'
+                            ? 'amber'
+                            : 'emerald'
+                        }
+                        size="sm"
+                      >
+                        {nudge.priority}
+                      </Badge>
+                    </div>
+                    <p className="text-[11px] text-slate-300 leading-relaxed">{nudge.message}</p>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-1 border-t border-slate-800/80 text-[11px]">
+                    {nudge.potentialSavingsBDT ? (
+                      <span className="text-emerald-400 font-mono font-medium">
+                        Save ~{formatBDT(nudge.potentialSavingsBDT)}
+                      </span>
+                    ) : (
+                      <span className="text-slate-500">Continuous Optimization</span>
+                    )}
+                    <button
+                      onClick={() => navigate(nudge.actionRoute)}
+                      className="px-2.5 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/20 text-xs font-medium transition-colors flex items-center gap-1"
+                    >
+                      {nudge.actionLabel}
+                      <ArrowRight className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Statistical Anomalies Alert Banner */}
         {anomalies.length > 0 && (
@@ -685,6 +770,11 @@ export const DashboardPage: React.FC = () => {
       </Card>
 
       <ModelCardsModal isOpen={showModelCards} onClose={() => setShowModelCards(false)} />
+      <UpaySandboxGatewayModal
+        isOpen={showSandboxModal}
+        onClose={() => setShowSandboxModal(false)}
+        onSuccess={() => loadDashboardData()}
+      />
     </div>
   );
 };

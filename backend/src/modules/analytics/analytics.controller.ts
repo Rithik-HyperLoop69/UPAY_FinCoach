@@ -90,4 +90,15 @@ export class AnalyticsController {
       next(error);
     }
   };
+
+  getPilotImpact = async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { PilotImpactService } = await import('./pilotImpactService');
+      const service = new PilotImpactService();
+      const report = service.getReport();
+      return sendSuccess(res, report, 'Empirical survey and 30-day pilot impact report retrieved');
+    } catch (error) {
+      next(error);
+    }
+  };
 }

@@ -11,6 +11,6 @@ export interface AIProvider {
     observed: string;
     forecast: string;
     suggestion: string;
-    provider: 'gemini' | 'deterministic-fallback';
+    provider: 'gemini' | 'deterministic-fallback' | 'cached';
   }>;
 }

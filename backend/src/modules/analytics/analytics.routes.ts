@@ -5,9 +5,10 @@ import { authenticateToken } from '../../middleware/auth.middleware';
 const router = Router();
 const controller = new AnalyticsController();
 
-// Public model evaluation and model cards
+// Public model evaluation, model cards, and empirical survey reports
 router.get('/evaluation', controller.getEvaluationReport);
 router.get('/model-card', controller.getModelCards);
+router.get('/pilot-impact', controller.getPilotImpact);
 
 router.use(authenticateToken);
 

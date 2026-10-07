@@ -9,6 +9,7 @@ const controller = new AICoachController();
 router.use(authenticateToken);
 
 router.post('/chat', aiLimiter, controller.chat);
+router.get('/nudges', controller.getNudges);
 router.get('/conversations', controller.getConversations);
 router.get('/conversations/:id', controller.getConversationMessages);
 router.get('/context-preview', controller.getContextPreview);

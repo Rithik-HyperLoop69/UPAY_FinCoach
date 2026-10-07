@@ -7,6 +7,7 @@ import { z } from 'zod';
 const chatSchema = z.object({
   message: z.string().min(1, 'Message is required'),
   conversationId: z.string().optional(),
+  privacyMode: z.enum(['cloud', 'local_airgap']).optional(),
 });
 
 export class AICoachController {
@@ -19,9 +20,19 @@ export class AICoachController {
   chat = async (req: Request, res: Response, next: NextFunction) => {
     try {
       if (!req.user) throw new UnauthorizedError();
-      const { message, conversationId } = chatSchema.parse(req.body);
-      const result = await this.service.chat(req.user.userId, message, conversationId);
+      const { message, conversationId, privacyMode } = chatSchema.parse(req.body);
+      const result = await this.service.chat(req.user.userId, message, conversationId, privacyMode);
       return sendSuccess(res, result, 'Coach response generated');
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getNudges = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (!req.user) throw new UnauthorizedError();
+      const nudges = await this.service.getNudges(req.user.userId);
+      return sendSuccess(res, nudges, 'Proactive coaching nudges retrieved');
     } catch (error) {
       next(error);
     }

@@ -12,6 +12,7 @@ import {
   Zap,
   MessageSquare,
   CheckCircle2,
+  CreditCard,
 } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
@@ -19,6 +20,7 @@ import { Badge } from '../components/ui/Badge';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { AddTransactionModal } from '../components/transactions/AddTransactionModal';
 import { UpaySmsModal } from '../components/transactions/UpaySmsModal';
+import { UpaySandboxGatewayModal } from '../components/transactions/UpaySandboxGatewayModal';
 import { api } from '../api/client';
 import { Transaction } from '../types';
 import { formatBDT, formatDate } from '../utils/formatters';
@@ -31,6 +33,7 @@ export const TransactionsPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
   const [isSmsModalOpen, setIsSmsModalOpen] = useState<boolean>(false);
+  const [isSandboxModalOpen, setIsSandboxModalOpen] = useState<boolean>(false);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [syncNotice, setSyncNotice] = useState<string | null>(null);
 
@@ -99,6 +102,15 @@ export const TransactionsPage: React.FC = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
+          <Button
+            variant="upay"
+            size="sm"
+            onClick={() => setIsSandboxModalOpen(true)}
+            leftIcon={<CreditCard className="w-3.5 h-3.5" />}
+            className="shadow-md shadow-teal-500/20"
+          >
+            ⚡ Upay Sandbox Gateway
+          </Button>
           <Button
             variant="outline"
             size="sm"
@@ -347,6 +359,14 @@ export const TransactionsPage: React.FC = () => {
           loadTransactions(1);
           window.dispatchEvent(new CustomEvent('transaction-created'));
           setTimeout(() => setSyncNotice(null), 6000);
+        }}
+      />
+
+      <UpaySandboxGatewayModal
+        isOpen={isSandboxModalOpen}
+        onClose={() => setIsSandboxModalOpen(false)}
+        onSuccess={() => {
+          loadTransactions(1);
         }}
       />
     </div>

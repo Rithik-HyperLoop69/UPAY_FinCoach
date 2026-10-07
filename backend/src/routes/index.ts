@@ -8,6 +8,7 @@ import analyticsRoutes from '../modules/analytics/analytics.routes';
 import forecastRoutes from '../modules/forecast/forecast.routes';
 import coachRoutes from '../modules/ai-coach/aiCoach.routes';
 import alertRoutes from '../modules/alerts/alert.routes';
+import paymentsRoutes from '../modules/payments/payments.routes';
 
 const apiRouter = Router();
 
@@ -21,6 +22,7 @@ apiRouter.use('/analytics', analyticsRoutes);
 apiRouter.use('/forecast', forecastRoutes);
 apiRouter.use('/coach', coachRoutes);
 apiRouter.use('/alerts', alertRoutes);
+apiRouter.use('/payments', paymentsRoutes);
 
 // Root API Welcome & metadata
 apiRouter.get('/', (req, res) => {

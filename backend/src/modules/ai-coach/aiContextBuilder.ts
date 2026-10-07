@@ -70,12 +70,12 @@ export class AIContextBuilder {
       },
       anomalies: {
         totalDetected: anomalies.length,
-        highSeverityCount: anomalies.filter((a) => a.severity === 'HIGH').length,
+        highSeverityCount: anomalies.filter((a) => a.severity === 'CRITICAL' || a.severity === 'MODERATE').length,
         recentAnomalies: anomalies.slice(0, 3).map((a) => ({
           category: a.category,
           amount: a.amount,
           severity: a.severity,
-          reason: a.reason,
+          reason: a.explanation,
         })),
       },
       behaviorProfile: {

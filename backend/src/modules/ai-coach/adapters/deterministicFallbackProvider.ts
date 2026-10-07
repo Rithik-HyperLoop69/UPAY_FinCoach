@@ -6,7 +6,8 @@ export class DeterministicFallbackProvider implements AIProvider {
 
   async generateResponse(
     userMessage: string,
-    context: StructuredFinancialContext
+    context: StructuredFinancialContext,
+    _conversationHistory?: { role: string; content: string }[]
   ): Promise<{
     message: string;
     observed: string;

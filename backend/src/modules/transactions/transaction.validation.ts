@@ -9,7 +9,7 @@ export const createTransactionSchema = z.object({
   description: z.string().min(1, 'Description is required'),
   date: z.string().datetime().or(z.string().regex(/^\d{4}-\d{2}-\d{2}/)),
   merchant: z.string().optional(),
-  paymentMethod: z.enum(['upay', 'bKash', 'Nagad', 'Bank', 'Card', 'Cash']).default('upay'),
+  paymentMethod: z.string().default('upay'),
   status: z.enum(['COMPLETED', 'PENDING', 'CANCELLED']).default('COMPLETED'),
   isRecurring: z.boolean().optional().default(false),
   recurringFrequency: z.enum(['DAILY', 'WEEKLY', 'MONTHLY']).optional(),

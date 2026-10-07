@@ -57,6 +57,12 @@ export const TransactionsPage: React.FC = () => {
 
   useEffect(() => {
     loadTransactions(1);
+
+    const handleTxCreated = () => {
+      loadTransactions(1);
+    };
+    window.addEventListener('transaction-created', handleTxCreated);
+    return () => window.removeEventListener('transaction-created', handleTxCreated);
   }, [typeFilter]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -364,7 +370,10 @@ export const TransactionsPage: React.FC = () => {
 
       <UpaySandboxGatewayModal
         isOpen={isSandboxModalOpen}
-        onClose={() => setIsSandboxModalOpen(false)}
+        onClose={() => {
+          setIsSandboxModalOpen(false);
+          loadTransactions(1);
+        }}
         onSuccess={() => {
           loadTransactions(1);
         }}

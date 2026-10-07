@@ -82,7 +82,7 @@ export class UpaySandboxGateway {
     const totalSpent = await prisma.transaction.aggregate({
       where: {
         userId,
-        paymentMethod: 'UPAY_MFS',
+        paymentMethod: { in: ['upay', 'UPAY_MFS'] },
         type: 'EXPENSE',
       },
       _sum: { amount: true },
@@ -103,7 +103,7 @@ export class UpaySandboxGateway {
     const txs = await prisma.transaction.findMany({
       where: {
         userId,
-        paymentMethod: 'UPAY_MFS',
+        paymentMethod: { in: ['upay', 'UPAY_MFS'] },
       },
       orderBy: { createdAt: 'desc' },
       take: 10,
@@ -193,7 +193,7 @@ export class UpaySandboxGateway {
         category: defaultCategory?.name || categoryName,
         merchant: recipientOrMerchant,
         date: new Date(),
-        paymentMethod: 'UPAY_MFS',
+        paymentMethod: 'upay',
         description: `upay Gateway [${trxId}] to ${recipientOrMerchant}`,
         metadata: JSON.stringify({
           gateway: 'upay_sandbox_gateway_v2',

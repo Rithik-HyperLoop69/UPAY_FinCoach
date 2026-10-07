@@ -230,13 +230,16 @@ export const UpaySandboxGatewayModal: React.FC<UpaySandboxGatewayModalProps> = (
               .post<any>('/transactions', {
                 amount: initiatedData.amount,
                 type: 'EXPENSE',
-                category: paymentType === 'BILL_PAY' ? 'Utilities' : paymentType === 'SEND_MONEY' ? 'Transfer' : 'Shopping',
+                category: paymentType === 'BILL_PAY' ? 'Bills & Utilities' : paymentType === 'SEND_MONEY' ? 'Transfer / Cash Out' : 'Shopping',
                 merchant: recipient,
                 date: new Date().toISOString(),
-                paymentMethod: 'UPAY_MFS',
+                paymentMethod: 'upay',
                 description: `upay Gateway [${(initiatedData as any).trxId || initiatedData.paymentId}] to ${recipient}`,
               })
-              .catch(() => null);
+              .catch((error: any) => {
+                console.error('Failed to create fallback transaction:', error);
+                return null;
+              });
 
             return {
               paymentId: initiatedData.paymentId,
@@ -564,7 +567,15 @@ export const UpaySandboxGatewayModal: React.FC<UpaySandboxGatewayModalProps> = (
               >
                 Perform Another Test Payment
               </Button>
-              <Button variant="upay" size="sm" onClick={onClose}>
+              <Button
+                variant="upay"
+                size="sm"
+                onClick={() => {
+                  onClose();
+                  if (onSuccess) onSuccess();
+                  window.dispatchEvent(new CustomEvent('transaction-created'));
+                }}
+              >
                 Done & Return to Ledger
               </Button>
             </div>
